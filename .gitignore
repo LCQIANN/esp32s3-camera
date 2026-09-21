@@ -1,5 +1,4 @@
-# KiCad 自動快照與暫存
-.history/
+# KiCad 備份檔與鎖定檔
 *-backups/
 *.kicad_pcb-bak
 *.kicad_sch-bak
@@ -11,12 +10,7 @@ fp-info-cache
 *.lck
 ~*.lck
 
-# 中間輸出
-drc.out
-*.tmp
-
 # Windows / 編輯器
 Thumbs.db
 Desktop.ini
-*.lnk
 .vscode/
