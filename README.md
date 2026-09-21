@@ -34,7 +34,8 @@ esp32s3-camera/
 ├── esp32s3-camera.step           板子 STEP，給外殼設計用
 ├── erc.rpt / drc.rpt / netlist.net
 ├── view-top.png / view-bottom.png   v1.2 頂面、底面 3D 正視
-├── esp32s3-camera-v1.2-零件分工與採購.pptx / .pdf   零件分工、組裝示意、渲染圖、採購清單簡報
+├── esp32s3-camera-v1.2.pptx / .pdf   零件分工、組裝示意、渲染圖、採購清單簡報（完整版）
+├── esp32s3-camera-v1.2-簡易版.pptx / .pdf   給外行人看的 9 頁簡易版
 │
 ├── fab/                          送廠檔案
 │   ├── esp32s3-camera-gerber.zip   Gerber + 鑽孔打包
