@@ -1,0 +1,357 @@
+# ESP32-S3 相機板 — 設計規格書
+
+## 目前狀態（2026-09-21，v1.2）
+
+版本編號用數字：最初佈局是 **v1.0**，2026-09-17 改相機腳位並加相機 LDO 的是 **v1.1**，2026-09-21 加電源開關與電源燈的是 **v1.2**。板上絲印、KiCad 標題欄、Gerber ProjectId 都已同步。各版整份存在 `versions/v1.0/`、`versions/v1.1/`、`versions/v1.2/`（2026-09-21 定稿快照，含 fab 輸出），視為唯讀；之後若再改板，先從 v1.2 快照比對差異。
+
+### v1.2 改了什麼（2026-09-21）
+
+| 新零件 | 位置 | 料號 | 作用 |
+|---|---|---|---|
+| SW4 滑動開關 MSK12C02（SPDT） | 頂面右上板邊 (57.6, 11)，J1 上方，撥桿朝右板邊 | C431540（Extended） | 開關機 |
+| R21 100 kΩ 0603 | 底面 (53.2, 41.7)，U2 右側 | C25803 | EN 上拉到 VSYS |
+| R20 1 kΩ 0603 | 頂面 (53, 8.2) | C21190 | 電源燈限流 |
+| D5 藍色 0603 LED | 頂面 (53, 11.2) | C2288 | 電源燈，接 3.3V，開機就亮 |
+
+**電路**：開關不切電池，而是控制 U2（AP2112K）的 EN 腳。v1.1 的 EN 直接接 VSYS；v1.2 把 U2 pin 3 改成新網路 `LDO_EN`，由 R21 上拉到 VSYS，SW4 的共用端接 LDO_EN、一端接 GND、另一端空接。
+撥到接地那一側 = 關機：3.3V 全斷，ESP32、相機、記憶卡、LED 全部斷電，電池只剩穩壓器 10 nA 級待機電流加保護板本身耗電；插著 USB 時 TP4056 仍照常充電，D2 紅燈照常。
+撥到空接那一側 = 開機。開關只流 EN 腳的微安級電流，MSK12C02 的 50 mA 額定綽綽有餘。
+D5 接在 3.3V 上，開機必亮、關機必熄，不靠韌體；耗電約 1 mA。
+
+**佈線**：LDO_EN 從 SW4 沿右板邊 x = 58.6 往下，穿過 J5 排針 pin 2、3 之間（各留 0.32 mm）到 (54.5, 43.8) 過孔，底面經 R21 到 U2 pin 3。
+U2 pin 3 原本兼作 C1、C2 的 VSYS 接入點，拆開後 C1/C2 的 VSYS 改由新過孔 (49.6, 46.9) 經一段 3 mm 的 In2 內層跳線接到 VSYS 主幹上的過孔 (50.9, 43.45)。刪掉一顆擋路的 GND 縫合過孔 (53.5, 42.7)。
+改動全由腳本完成（`render/illustration/v12_sch.py`、`v12_pcb.py`，需 KiCad 附的 python），先在副本上跑到 ERC/DRC 乾淨才套用。
+SW4 的 KiCad 內建 3D 檔不存在，板檔改指向外形相同的 `SW_SPDT_PCM12.step`，只影響 3D 顯示。
+
+**2026-09-21 送洗前最後檢查發現並修正的問題**（腳本 `render/illustration/fix_v12_gnd.py`，KiCad 附的 python 執行）：
+
+| 問題 | 修法 |
+|---|---|
+| **J2.23（相機 AGND）焊盤浮接**：只接到一片 0.2 mm² 的孤立敷銅，沒有過孔到內層地。v1.1 起就存在 | IPROG 頂層走線在 x 34.4–39.65 這段上移到 y 2.85 並把斜線右移；在 (37.0, 3.45) 加 GND 過孔，0.2 mm 線經 (35.25, 3.95)、(35.7, 3.5) 接回焊盤 |
+| **C3.2（22 µF 3.3V 輸出電容 GND）焊盤浮接**：只接到 2 mm² 孤立敷銅。v1.1 起就存在 | 底層在 (42.8, 53.0) 加 GND 過孔，0.3 mm 線接到焊盤 |
+| R21 兩腳網路與原理圖相反（電阻無極性，電氣無差，但 Update PCB from Schematic 會翻回來造成短路） | R21 轉 180°，pad 1 = VSYS、pad 2 = LDO_EN，標號移回原位 |
+| D5/R20/R21/SW4 封裝缺庫名前綴、全部 61 顆缺 LCSC 欄位、SW4 pad 1 無網路 | 補齊，現在 DRC 的原理圖一致性檢查 0 問題 |
+| C9 標號壓到 J2 絲印外框 | 標號移到零件下方 |
+
+這兩個浮接焊盤就是之前 DRC 一直報的「2 條 GND 敷銅未連接」。過去把它當成無害的敷銅碎片是錯的：KiCad 只會回報兩個群集間最近的一對物件，剛好都是敷銅，焊盤本身就被藏在後面。
+以後看到 zone unconnected 一律用 `render/illustration/gnd_connectivity.py` 跑一次幾何連通性（把焊盤、過孔、走線、敷銅島做 union-find），確認沒有焊盤落在主群集之外。
+修正後 Gerber、鑽孔（PTH 從 319 孔變 321 孔）、CPL（只有 R21 旋轉角從 90 變 −90）於 2026-09-21 18:16 重新輸出，BOM 與原理圖未變。
+
+**開關方向（2026-09-21 已依規格書標上絲印）**：Vimex 的 MSK-12C02 圖面顯示撥桿撥向哪一端，中間共用腳就接到那一端的腳。
+板上 pad 3（GND）在 y 8.75、靠板子上緣；pad 1（空接）在 y 13.25、靠模組。所以撥桿**往上緣（角落孔那側）= OFF、往下（往模組）= ON**，
+頂面絲印在開關上方印「OFF」、下方印「ON」（`render/illustration/v12_silk_onoff.py`）。撥桿行程 1.5 mm，外殼開槽對 x = 58–60、y = 8–14 mm 的右板邊。
+收到板子仍請以藍燈實測一次，方向若與絲印相反代表買到的相容品機構相反，改用另一側即可，電路不用動。
+
+| 項目 | 狀態 |
+|---|---|
+| 原理圖 | ✅ ERC 0 錯誤（2 個 XC6206 符號庫比對警告，開 KiCad 後「從庫更新符號」即可清除） |
+| 板子與原理圖一致性 | ✅ 0 問題（2026-09-21 18:15 以 `kicad-cli pcb drc --schematic-parity` 驗證，含 LCSC 欄位與 R21 腳位） |
+| 佈件 | ✅ 61 個零件雙面：58 SMD + 3 插件（v1.2 新增 SW4、R20、R21、D5） |
+| 內層平面 | ✅ In1 = GND、In2 = +3V3 |
+| 線寬／間距 | ✅ 訊號 0.2 mm、間距 0.15 mm；VBAT/VSYS/+5V 0.6 mm；3V3/GND 短接線 0.3 mm |
+| 佈線 | ✅ 全部網路接通（2026-09-18 補完 +5V、+2V8 最後幾段） |
+| DRC | ✅ v1.2 於 2026-09-21 18:15 複跑（含敷銅重填）：0 錯誤、0 警告、0 未連接焊盤、0 原理圖一致性問題。先前的「2 個 GND 敷銅提示」其實是 J2.23 與 C3.2 焊盤浮接，已加過孔修正（見上表） |
+| GND / +3V3 連通性 | ✅ 幾何連通性腳本：GND 66 個焊盤、+3V3 29 個焊盤全部接到主群集 |
+
+### 2026-09-17 這一版改了什麼
+
+1. **J2 相機腳位改成 AI-Thinker ESP32-CAM 標準 24pin 定義**（見第 4 節），原本的順序對不上任何市售模組。
+2. **新增 2.8V（U5 XC6206P282MR）與 1.2V（U6 XC6206P122MR）LDO** 供 AVDD / DVDD，DOVDD 接 3.3V。用 OV5640 模組時 U6 換成 XC6206P152MR（1.5V），焊盤相同。
+3. 相機 GPIO 對應重排，讓 16 條線從 J2 到模組不交叉（韌體 `camera_config_t` 要照新表填）。
+4. 電源線加寬，TP4056 散熱焊盤下補 4 顆 GND 過孔，每個 GND / 3V3 表面焊盤都有自己的過孔。
+5. 改動前的原理圖、板子與專案檔（v1.0 最後狀態）存放在 `versions/v1.0/`，見該資料夾的 README。
+
+### 3D 渲染與示意圖（2026-09-18）
+
+- `render/` 內是 kicad-cli 光線追蹤輸出：`iso-top/iso-bottom/top/bottom/low-angle/closeup-*.png` 為裸板貼片後的樣子，`assembled-*.png` 與 `closeup-camera-module.png` 為插上相機、記憶卡、墊上電池的組裝示意。KiCad 的 VRML 讀取器不畫 `Cylinder` 基本體，圓柱要用 IndexedFaceSet 網格；相機模型由 scratchpad 的 `gen_camera_wrl.py` 產生。
+- J1（HCTL USB-C）與 U3（ESOP-8 EP2.41x3.3）在 KiCad 內建庫沒有對應 3D 檔，已改指向外形相同的 `USB_C_Receptacle_GCT_USB4105-xx-A_16P_TopMnt_Horizontal.step` 與 `SOIC-8-1EP_..._EP2.41x3.81mm.step`。只影響 3D 顯示，焊盤與 Gerber 不變。
+- `render/illustration/` 是專門給組裝示意用的板檔複本，多了三個沒有焊盤的假零件掛簡化 VRML 模型。**不要用它出 Gerber。**
+- 2026-09-18 整理檔案：中間過程的 `*.bak_before_fix2 / fix3 / 3dfix / lcsc` 與舊 Gerber zip 已刪除（差異皆已收進正式檔）。`.history/` 是 KiCad 自動快照，由 KiCad 管理。
+
+### 版本管理規則
+
+- 根目錄永遠是「正在改的最新版」。每次出 Gerber 準備下單時，把 `.kicad_pcb / .kicad_sch / .kicad_pro`、`esp32s3-camera.pretty/`、`fp-lib-table` 和 `fab/` 內的 zip、BOM、CPL 複製一份到 `versions/vX.Y/`，並在該資料夾放 README 寫這一版改了什麼。
+- 版本號用數字（v1.0、v1.1、v1.2…），不用 rev A / rev B。板上絲印、KiCad 標題欄 rev、Gerber ProjectId 三處同步。
+- 已有：`versions/v1.0/`（2026-09-17 改 J2 前）、`versions/v1.1/`（2026-09-18 下單版）。
+- 不要再用 `*.bak_before_xxx` 這種散在根目錄的備份；改動過程中的臨時快照交給 KiCad 的 `.history/`。
+- 2026-09-18 板上絲印改為「ESP32-S3 CAMERA  v1.1」，`.kicad_pcb` 補上標題欄 rev 1.1，`.kicad_sch` 標題欄 rev 同步為 1.1，並以 kicad-cli 重出 Gerber、鑽孔檔與 zip。
+
+### 下單前建議再做一次
+
+1. 在 KiCad 開啟專案，Tools → Update PCB from Schematic 確認 0 差異；跑一次 DRC。2026-09-21 18:15 以 kicad-cli 跑過 DRC + schematic parity，全部為 0，但 KiCad GUI 的比對可能多列出符號庫版本差異，屬警告。
+2. 在 3D 檢視確認 U5/U6/C12–C17（J2 右側）與相機排線走向不打架。
+3. `fab/` 內的 Gerber、鑽孔、CPL 是 2026-09-21 18:16 依修正後板子重新輸出的（BOM 為 2026-09-21 14:14 版，原理圖未變），上傳 JLCPCB 預覽確認層數為 4 層。
+   BOM 已含 `LCSC Part #` 欄（2026-09-18 於原理圖每顆零件加上 `LCSC` 欄位後以 kicad-cli 重新輸出），JLCPCB 上傳後可自動配對；電阻電容 LED 全部選 Basic Part。
+   重新輸出指令：`kicad-cli sch export bom --fields "Reference,Value,Footprint,QUANTITY,LCSC" --labels "Designator,Comment,Footprint,Qty,LCSC Part #" --group-by "Value,Footprint,LCSC" --exclude-dnp -o fab/esp32s3-camera-bom.csv esp32s3-camera.kicad_sch`
+   D3 的料號是 **C8598（B5819W，SOD-123，Basic）**，不是 SS14：LCSC 上的 SS14 是 SMA/DO-214AC 封裝，跟板上 SOD-123 焊盤不合。
+   同日也清掉了 `.kicad_sch` 檔尾一段重複殘留的內容（約 17,900 行，與前段完全相同，KiCad 原本就會忽略）。
+4. 自動補的走線有些是 45° 階梯狀，電氣正確但不美觀，想整理可在 pcbnew 手動拉直。
+
+**2. 相機模組的擺法：排線反折、模組貼回板面**
+
+模組不要懸在板子上緣外，排線一碰就凹。做法跟 ESP32-CAM 一樣：排線從 J2 往板邊出來約 2.5 mm 就 180° 反折，
+回頭蓋過 J2，模組躺在板面上、鏡頭朝上。用 21 mm 排線時模組會落在 **x 25.5–34.5、y 20.5–29.5 mm**
+（按鍵那一欄與 U4 之間），那一區只有走線、沒有零件，最高的鄰居是 C17（y 20.5，x 40.3），不會碰到。
+模組底下墊一塊 8 × 8 mm、約 2 mm 厚的雙面泡棉膠固定，同時墊高到排線折回的高度。
+板上沒有螺絲孔可鎖模組；若外殼要開鏡頭孔，孔心對 (30, 25) mm。
+排線長度不同時模組落點會變：落點 y ≈ 6.5 + (排線長 − 3.5) − 4.5。
+
+**2b. 電池的擺法：貼在底面中央，墊 2 mm 泡棉**
+
+建議用 **603040**（30 × 40 × 6 mm，約 600 mAh）或更小的 502535，中心放在底面 **(34, 44) mm**，長邊沿 Y，
+保護板那一端朝下緣（y 大的那側），引線繞到左邊的 J4。
+
+**J4 極性**：pin 1 = VBAT（正極），pin 2 = GND。pin 1 焊盤在 (12, 62)、pin 2 在 (10, 62)，
+也就是 pin 1 靠板子中央、pin 2 靠左板邊。底面絲印在 pin 1 那一側有 L 形記號。
+把底面朝自己、天線那端朝下來看，pin 1 在左、pin 2 在右（`render/closeup-j4.png`）。
+JST PH 插頭本身有防呆只能單向插入，所以要確認的是電池線材：紅線必須壓在會對到 pin 1 的那一格，不合就把插頭裡的端子對調。2026-09-18 用 pcbnew 讀出底面全部零件外框與高度核對過：
+
+| 檢查項 | 結果 |
+|---|---|
+| 電池投影範圍 | x 19–49、y 24–64 mm |
+| 投影範圍內最高零件 | 0805 電容 1.3 mm（C1、C3、C10），墊 2 mm 泡棉即可跨過 |
+| 到 J5 / J6 排針（8.5 mm 高） | 5.2 mm |
+| 到 J4 電池座（6 mm 高） | 4.5 mm |
+| 到天線淨空區（y ≥ 74.5） | 10.5 mm，不會壓在天線上 |
+| 到 U3 充電 IC（會發熱） | 12 mm 以上 |
+| 底面總厚度 | 電池 6 + 泡棉 2 = 8 mm，仍低於排針的 8.5 mm |
+
+換 803040（8 mm 厚）位置相同，底面總厚變 10 mm；換 103450（34 × 50 × 10）放 (35, 45) 也放得下，但離排針只剩 2.2 mm，
+且底面總厚 12 mm。電池不要往下緣挪：壓到天線淨空區會讓 Wi-Fi 變差。核對腳本是 `render/illustration/battery_check.py`（用 KiCad 附的 python 執行），
+邏輯是把底面零件的 courtyard 外框與估計高度，對照電池投影範圍。
+
+**2c. microSD 卡插入方向**
+
+J3（Hirose DM3AT-SF-PEJM5）在底面，開口朝**左板邊**（x = 0 那一側，USB-C 在對面的右板邊）。
+Hirose 型錄寫明 DM3AT 是 Top board mounting（Standard）型：卡片**金手指面朝電路板**、標籤面朝外。
+板子正面朝上時，卡片標籤朝下、金手指朝上插進去；翻到底面朝上時剛好相反。
+Push-push 機構：推到底會「喀」一聲鎖住，再推一下退出。插到底時卡片仍露出板邊約 4.6 mm，外殼在左側要留插卡口。
+座子有防反插保護，方向錯了推不進去，不要硬壓。
+
+**2d. 即時預覽螢幕（2026-09-21 決定：v1.2 加外接螢幕，不做 v1.3）**
+
+> 決策：以 v1.2 板子直接下單，螢幕用杜邦線外接在 J5、J6。v1.3 專用螢幕座暫不設計，除非日後 UART 除錯口或杜邦線成為實際問題。
+> 因此 J5、J6 建議焊 90° 彎針：PCBA 選 Economic（不焊插件）自己焊彎針，或選 Standard 讓 JLCPCB 焊直排針再接線。
+
+需求：看到鏡頭對準的畫面。腳位餘量只有 GPIO4/5/6（J6）與 strapping 的 45/46，SPI TFT 需要 5 支訊號腳，
+解法是**借用 UART0 的 GPIO43/44 當 SPI 時脈與資料**（ESP32-S3 的 GPIO 矩陣允許 SPI2 用任意腳，40 MHz 內沒問題），
+CS/DC/RST 用 J6 的 GPIO4/5/6，電源從 J5 拿。**現有 J5 + J6 兩條排針就夠，板子不用改**，代價是失去 UART 除錯口（USB 序列埠仍可用）。
+
+**指定面板（2026-09-21 定案）：通用型 1.3 吋 IPS 240×240 ST7789 模組，7 pin 2.54 mm 焊接式**（市售名稱 GMT130-V1.0、ZJY133T-IG01、lcdwiki「1.3inch IPS Module」，
+搜尋關鍵字「1.3吋 IPS 240x240 ST7789 7pin」，蝦皮約 NT$150–220）。選它的理由：有完整尺寸圖、板子 27.78 × 39.22 mm 剛好蓋在電池上、四角有 Ø2 mm 孔可鎖外殼、沒有 CS 腳正好配合專用 SPI 匯流排。
+尺寸（lcdwiki 圖面）：PCB 27.78 × 39.22 mm；四角孔 Ø2.0，距邊 2.5 mm（孔距 22.78 × 34.22）；7 pin 與上緣兩孔同一排、距上緣 2.5 mm，第一腳距左緣 6.27 mm，順序 GND VCC SCL SDA RES DC BLK；
+顯示玻璃 25.8 × 29.22 mm，上緣距板頂 5.0 mm；有效顯示區 23.4 × 23.4 mm；含玻璃厚約 2.8 mm。
+
+| 模組腳 | 接到 | ESP32-S3 |
+|---|---|---|
+| GND | J5.2 | — |
+| VCC | J5.1 | 3V3 |
+| SCL（SPI SCK） | J5.3 | GPIO43 |
+| SDA（SPI MOSI） | J5.4 | GPIO44 |
+| RES | J6.4 | GPIO6 |
+| DC | J6.3 | GPIO5 |
+| BLK | J6.2 | GPIO4，可用程式關背光省電；不接則背光常亮 |
+
+替代品：Waveshare 1.3inch LCD Module（ICShop 368031700013，NT$225，含 20 cm PH2.0 8 pin 線）電路一樣可用，但板子 45 × 31 mm 較大，腳序不同（VCC GND DIN CLK CS DC RST BL），CS 接 GND 即可。
+
+microSD 維持 SDMMC 模式，不與螢幕共用匯流排。預期 240×240 RGB565 約 10–15 fps。
+機構：螢幕在底面朝外（與鏡頭相反面），疊在電池上方，用 5 cm 的 8 芯線接到 J5/J6；J5、J6 建議改焊 90° 排針或直接焊線，避免 8.5 mm 直排針撐高。
+若日後要做成正式版（v1.3），才需要在右板邊做 1×8 專用座並把 SD 線或 UART 線拉過去，那是移動 J5、J6 加重繞 6 條網路的工作量。
+3D 示意（`render/assembled-bottom.png`、`assembled-iso-bottom.png`、`assembled-bottom-low.png`）依上述圖面 1:1 畫出：模組轉 90°，中心 (34, 45)，
+佈滿 x 14.4–53.6、y 31.1–58.9，7 pin 排針那一邊朝右板邊、離 J5/J6 只有 5 mm，四角孔落在 (16.9, 33.6)、(51.1, 33.6)、(16.9, 56.4)、(51.1, 56.4)，可用 M2 銅柱鎖到外殼。
+螢幕是正方形，轉 90° 不影響畫面；模型由 `render/illustration/gen_display_wrl.py` 產生。底面總厚度變成 泡棉 2 + 電池 6 + 螢幕 2.8 ≈ 10.8 mm，超過排針的 8.5 mm，外殼厚度以螢幕為準。
+排針建議改焊 90° 或直接焊線，示意圖畫的是直排針朝板子。
+
+**3. GND 敷銅碎片與 DRC 的 zone unconnected（2026-09-21 更正）**
+
+外層 GND 敷銅被繞線切碎成許多小島，敷銅設定是「移除孤島」，所以留下來的每一塊都至少黏著一個 GND 物件。
+這一節原本寫「DRC 報的 zone unconnected 電氣上沒有影響」，**這是錯的**：2026-09-21 送洗前檢查發現那兩條回報各自藏著一個只靠小碎片、沒有過孔的焊盤（J2.23 相機 AGND、C3.2 輸出電容 GND），已加過孔修正。
+規則改為：DRC 只要有 unconnected_items，不管它指的是不是敷銅，都要用 `render/illustration/gnd_connectivity.py` 跑一次幾何連通性確認每個焊盤都在主群集裡；0 才算過。
+
+### 輸出檔案
+
+`fab/` 底下有 Gerber（含四層）、鑽孔檔、BOM、貼片座標（CPL），
+以及打包好的 `esp32s3-camera-gerber.zip`。
+
+
+目標：2 層板、可 JLCPCB 發包、USB-C 供電與燒錄、DVP 相機模組、microSD 存檔、鋰電池供電。
+
+---
+
+## 1. 系統架構
+
+```
+              USB-C ──┬── ESD ──── ESP32-S3 USB (GPIO19/20)
+                      │
+                      └── 5V ──┬── TP4056 充電 ──── LiPo 3.7V ──┐
+                               │                                │
+                               └────────── 理想二極體 OR ────────┘
+                                                │
+                                             VSYS
+                                                │
+                                          LDO 3.3V / 1A
+                                                │
+                        ┌───────────────────────┼──────────────┐
+                        │                       │              │
+                   ESP32-S3-WROOM-1        相機模組       microSD
+                     (N16R8)              (DVP 24pin)     (SPI/SDMMC)
+```
+
+## 2. 為什麼這樣選
+
+| 決策 | 理由 |
+|---|---|
+| 用 **WROOM-1 模組**，不用裸晶片 | 模組已過認證、內建天線與晶振。裸晶片要做 50Ω 天線走線、π 型匹配、外掛 flash/PSRAM，2 層板做不好 |
+| 一定要 **N16R8**（8MB PSRAM） | 相機 framebuffer 放在 PSRAM。沒有 PSRAM 只能跑 QVGA 320×240 且無法 JPEG 緩衝 |
+| **DVP 並列介面**，不用 MIPI CSI | MIPI 是差動高速訊號，需 4 層板 + 阻抗控制 + 等長。DVP 是 8-bit 並列，最高 ~20MHz，2 層板隨便走 |
+| **相機用 FPC 連接器**，不焊裸 sensor | 買現成 OV2640/OV5640 模組（含鏡頭座與對焦鏡頭），焊裸 sensor 要處理 CSP 封裝與光學對位 |
+| **LDO 而非 buck** | 峰值 ~500mA，LDO 壓降損耗可接受，且無開關雜訊干擾影像。省掉電感與 layout 難度 |
+
+## 3. 零件選型（BOM）
+
+| 編號 | 零件 | 型號 | 封裝 | 數量 | 備註 |
+|---|---|---|---|---|---|
+| U1 | 主控模組 | ESP32-S3-WROOM-1-N16R8 | Module | 1 | **務必是 N16R8**，不要 N8 無 PSRAM 版 |
+| U2 | LDO 3.3V | AP2112K-3.3TRG1 或 ME6211C33M5G | SOT-23-5 | 1 | 600mA~1A，壓差低 |
+| U3 | 鋰電充電 IC | TP4056 (帶保護建議搭 DW01+FS8205) | SOP-8 | 1 | 或用 MCP73831 (SOT-23-5) |
+| U4 | USB ESD 保護 | USBLC6-2SC6 | SOT-23-6 | 1 | D+/D- 靜電防護 |
+| J1 | USB-C 母座 | TYPE-C-31-M-12 (16pin 簡化版) | SMD | 1 | CC1/CC2 各接 5.1k 下拉 |
+| J2 | 相機 FPC 座 | 24pin 0.5mm 掀蓋式 下接觸 | SMD | 1 | 對應 OV2640/OV5640 標準模組 |
+| J3 | microSD 卡座 | 推push-push 型 | SMD | 1 | |
+| J4 | 電池座 | JST PH 2.0mm 2pin | THT | 1 | |
+| SW1 | BOOT 按鍵 | 輕觸開關 | SMD 3×4 | 1 | GPIO0 |
+| SW2 | RESET 按鍵 | 輕觸開關 | SMD 3×4 | 1 | EN |
+| SW3 | 快門按鍵 | 輕觸開關 | SMD 3×4 | 1 | GPIO1（GPIO47 已改給相機 D1，見第 4 節） |
+| SW4 | 電源開關（v1.2） | MSK12C02 SPDT 滑動 | SMD 8×2.8 | 1 | 控制 U2 EN，C431540 |
+| D1 | 狀態 LED | 0603 綠 | 0603 | 1 | GPIO2 |
+| D2 | 充電指示 LED | 0603 紅 | 0603 | 1 | TP4056 CHRG |
+| D5 | 電源 LED（v1.2） | 0603 藍 | 0603 | 1 | 接 3.3V 經 R20 1k，C2288 |
+| R21 | EN 上拉（v1.2） | 100kΩ | 0603 | 1 | VSYS → LDO_EN |
+| Q1 | 閃光燈 MOSFET | AO3400A (N-ch) | SOT-23 | 1 | 若要高亮 LED |
+| C_bulk | 電解/鉭質 | 22µF | 0805 或 A 型 | 2 | LDO 輸入輸出各一 |
+| C_dec | 去耦電容 | 100nF | 0402/0603 | ~10 | 每顆 IC 電源腳旁 |
+| C_cam | 相機電源 | 10µF + 100nF | 0603 | 各 1 | 靠近 J2 |
+| R_usb | CC 下拉 | 5.1kΩ | 0402/0603 | 2 | **必要**，否則 USB-C 不供電 |
+| R_i2c | SCCB 上拉 | 4.7kΩ | 0603 | 2 | SIOC/SIOD 拉到 3V3 |
+| R_led | LED 限流 | 1kΩ | 0603 | 2~3 | |
+| R_boot | 按鍵上拉 | 10kΩ | 0603 | 3 | |
+
+> LCSC 料號已於 2026-09-18 填入原理圖 `LCSC` 欄位並輸出到 `fab/esp32s3-camera-bom.csv`。庫存會變動，下單前仍請在 JLCPCB 頁面確認每顆有貨；電阻電容 LED 皆為 **Basic Part**（免上料費）。
+
+## 4. 腳位配置（關鍵，先確認再畫）
+
+### ⚠️ 不可使用
+- **GPIO26–32**：內部 SPI Flash 專用
+- **GPIO33–37**：Octal PSRAM 專用（R8 版本）
+- GPIO22–25：ESP32-S3 上不存在
+
+### 相機 DVP（J2 = AI-Thinker ESP32-CAM 標準 24pin 定義）
+
+J2 腳位照 ESP32-CAM 原理圖的 24pin 座定義（來源：AI-Thinker ESP32_CAM_V1.6 schematic）。
+模組要買 **底接觸（bottom contact）、跟 ESP32-CAM 相容** 的 OV2640/OV5640 24pin 排線模組。
+GPIO 對應是為了讓 16 條線從 J2 到模組不交叉而排的，韌體 `camera_config_t` 照這張表填。
+
+| J2 pin | 模組訊號 | 接到 |
+|---|---|---|
+| 1, 2 | Y0, Y1（10-bit 低兩位，不用） | 空接 |
+| 3 | Y4 = D2 | GPIO48 |
+| 4 | Y3 = D1 | GPIO47 |
+| 5 | Y5 = D3 | GPIO21 |
+| 6 | Y2 = D0 | GPIO14 |
+| 7 | Y6 = D4 | GPIO13 |
+| 8 | PCLK | GPIO12 |
+| 9 | Y7 = D5 | GPIO11 |
+| 10 | DGND | GND |
+| 11 | Y8 = D6 | GPIO10 |
+| 12 | XCLK | GPIO9 |
+| 13 | Y9 = D7 | GPIO3 |
+| 14 | DOVDD | +3V3 |
+| 15 | DVDD | +1V2（U6） |
+| 16 | HREF | GPIO8 |
+| 17 | PWDN | GPIO18 |
+| 18 | VSYNC | GPIO17 |
+| 19 | RESET | GPIO16 |
+| 20 | SIOC (SCL) | GPIO15 |
+| 21 | AVDD | +2V8（U5） |
+| 22 | SIOD (SDA) | GPIO7 |
+| 23 | AGND | GND |
+| 24 | NC | 空接 |
+
+> GPIO3 是 strapping pin，但它只決定 JTAG 訊號來源，不影響開機，
+> 拿來當一般 GPIO 是安全的（Espressif 自家板子也這樣用）。
+
+### microSD（SDMMC 1-bit 或 SPI）
+| 訊號 | ESP32-S3 |
+|---|---|
+| CLK | GPIO39 |
+| CMD / MOSI | GPIO38 |
+| D0 / MISO | GPIO40 |
+| CS / DAT3 | GPIO41 |
+
+### 其他
+| 功能 | ESP32-S3 |
+|---|---|
+| USB D− | GPIO19 |
+| USB D+ | GPIO20 |
+| UART0 TX (除錯) | GPIO43 |
+| UART0 RX (除錯) | GPIO44 |
+| BOOT 按鍵 | GPIO0 |
+| 狀態 LED | GPIO2 |
+| 閃光燈 | GPIO42 |
+| 快門按鍵 | GPIO1 |
+| 擴充排針 J6 | GPIO4, 5, 6 |
+| 未使用 | GPIO45, 46（strapping，刻意空接） |
+
+> GPIO45/46 是 strapping pin，開機瞬間電位會影響啟動模式，**不要接按鍵或會被外部拉動的東西**。GPIO0 是 BOOT，接按鍵到 GND 是標準做法。
+
+## 5. 必做的電路細節（新手最常漏）
+
+1. **USB-C 的 CC1、CC2 各要一顆 5.1kΩ 下拉到 GND** — 少了這個，充電器不會送電，板子完全不會亮。兩顆分開接，不可共用一顆。
+2. **EN 腳的上電延遲**：EN 接 10kΩ 上拉到 3V3 + 1µF 對地。ESP32 需要電源穩定後才釋放 reset，少了這個會隨機開機失敗。
+3. **相機的 XCLK 走線盡量短**，這是唯一比較快的訊號（20MHz）。D0–D7 不需等長，但別繞遠路。
+4. **模組天線下方要挖空**：WROOM-1 天線那一端伸出板邊，或至少該區域的頂層/底層都不鋪銅、不走線。這是最常見的翻車點。
+5. **去耦電容貼著 IC 電源腳放**，不要放在板子另一頭。
+6. **UART0 (GPIO43/44) 拉出 2.54mm 排針** — 燒錄雖然走 USB，但出問題時序列埠 log 是唯一救命線索。
+7. **相機模組電源獨立去耦**：J2 旁放 10µF + 100nF，OV2640 的電流會抖。
+
+## 6. PCB 疊構與規格
+
+**60 × 85 mm、4 層、板厚 1.6mm、1oz 銅。**
+
+| 層 | 用途 |
+|---|---|
+| F.Cu | 訊號 + GND 敷銅 |
+| In1.Cu | 完整 GND 平面 |
+| In2.Cu | +3V3 電源平面 |
+| B.Cu | 訊號 + GND 敷銅 |
+
+為什麼從原本規劃的 2 層改成 4 層：16 位元並列匯流排加上 24 個焊盤的 +3V3
+網路，2 層根本走不完（實測最多只能繞到 45/47 條）。而且 20MHz 的 XCLK/PCLK
+需要一個完整的參考平面才不會亂輻射。JLCPCB 4 層 5 片大約比 2 層貴 5 美金。
+
+為什麼是 60×85 而不是更小：**JLCPCB 對 100×100mm 以內收同一個價**，
+所以放大板子是免費的，而 50×75 太擠導致佈線失敗。
+
+- 線寬 0.15mm、間距 0.13mm、過孔 0.6/0.3mm — 都在 JLCPCB 標準製程內（下限 0.127mm）
+- 表面處理：HASL（最便宜）或 ENIG
+- **天線淨空**：y ≥ 74.5mm 整條無銅、無零件、無過孔，模組天線端懸在這一區
+
+## 7. 施工順序
+
+1. 建 KiCad 專案 → 設定圖框、標題
+2. 畫原理圖：先電源區 → USB → MCU → 相機 → SD → 按鍵 LED
+3. 跑 ERC，清乾淨所有錯誤
+4. 指定每顆零件的 footprint
+5. Update PCB from Schematic
+6. 排版 → 定外形 → 走線 → 鋪銅
+7. DRC（用 JLCPCB 規格）
+8. 3D 檢視確認零件不打架
+9. 輸出 Gerber + Drill + BOM + CPL(Pick&Place)
+10. 上傳 JLCPCB 預覽確認
+
+## 8. 韌體端
+
+用 Arduino IDE 的 `esp32` 套件 + 內建 `ESP32 Camera` 範例（CameraWebServer），
+或 ESP-IDF 的 `esp32-camera` component。設定時 board 選 **ESP32S3 Dev Module**，
+並開啟 **PSRAM: OPI PSRAM**（R8 是 octal，選錯成 QSPI 會抓不到）。
+把上面的腳位表填進 `camera_config_t` 即可。

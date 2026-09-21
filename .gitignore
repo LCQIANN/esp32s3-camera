@@ -1,0 +1,22 @@
+# KiCad 自動快照與暫存
+.history/
+*-backups/
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*.kicad_pro-bak
+*.bak
+*.bak_before_*
+_autosave-*
+fp-info-cache
+*.lck
+~*.lck
+
+# 中間輸出
+drc.out
+*.tmp
+
+# Windows / 編輯器
+Thumbs.db
+Desktop.ini
+*.lnk
+.vscode/

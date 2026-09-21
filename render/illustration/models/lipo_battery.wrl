@@ -1,0 +1,41 @@
+#VRML V2.0 utf8
+# Illustrative 3.7V LiPo pouch, 30 x 40 x 6 mm, centred on origin, z from 0 to -6 mm (below the board). Units: 0.1 inch.
+# foam pad between board and pouch: 26 x 36 x 2 mm, z 0 .. +2 (touches the board underside)
+Transform {
+  translation 0 0 0.394
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.22 0.22 0.24 } }
+    geometry Box { size 10.236 14.173 0.787 }
+  }
+}
+# pouch body (silver)
+Transform {
+  translation 0 0 -1.181
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.74 0.75 0.78 specularColor 0.5 0.5 0.5 shininess 0.3 } }
+    geometry Box { size 11.811 15.748 2.362 }
+  }
+}
+# protection-board end wrapped in yellow tape
+Transform {
+  translation 0 8.268 -1.181
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.92 0.76 0.20 } }
+    geometry Box { size 11.811 0.787 2.441 }
+  }
+}
+# red and black leads heading toward the JST plug (boxes: KiCad ignores VRML Cylinder)
+Transform {
+  translation -0.315 9.055 -1.181
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.85 0.10 0.10 } }
+    geometry Box { size 0.197 0.787 0.197 }
+  }
+}
+Transform {
+  translation 0.315 9.055 -1.181
+  children Shape {
+    appearance Appearance { material Material { diffuseColor 0.08 0.08 0.08 } }
+    geometry Box { size 0.197 0.787 0.197 }
+  }
+}

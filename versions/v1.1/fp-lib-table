@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "esp32s3-camera")(type "KiCad")(uri "${KIPRJMOD}/esp32s3-camera.pretty")(options "")(descr "Project footprints"))
+)

@@ -1,0 +1,18 @@
+ERC report (2026-09-21T14:13:37, Encoding UTF8)
+Report includes: Errors, Warnings, Exclusions
+
+***** Sheet /
+[lib_symbol_mismatch]: 符號「XC6206PxxxMR」與元件庫「Regulator_Linear」中的複本不符
+    ; warning
+    @(400.05 mm, 195.58 mm): Symbol U5 [XC6206PxxxMR]
+[lib_symbol_mismatch]: 符號「XC6206PxxxMR」與元件庫「Regulator_Linear」中的複本不符
+    ; warning
+    @(400.05 mm, 226.06 mm): Symbol U6 [XC6206PxxxMR]
+
+ ** ERC messages: 2  Errors 0  Warnings 2
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters
