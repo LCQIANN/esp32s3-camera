@@ -1,3 +1,6 @@
+# .history/ 是 KiCad 自己管理的內嵌 Git 倉庫，無法被外層倉庫收錄（只會變成空指標），故排除
+.history/
+
 # KiCad 備份檔與鎖定檔
 *-backups/
 *.kicad_pcb-bak
