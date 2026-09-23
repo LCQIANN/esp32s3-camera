@@ -20,10 +20,11 @@ ITEMS = [
     ("MicroSDCard", "ILL2", 3.5, 44.0, 0, "microsd_card.wrl", (0, 0, -2.5)),
     # pouch top face 2.0 mm below the board underside (1.6 mm board + 2.0 mm foam pad)
     ("LiPoBattery", "ILL3", 34.0, 44.0, 180, "lipo_battery.wrl", (0, 0, -3.6)),
-    # 1.3" ST7789 preview display, face-down on top of the battery (battery bottom face at z = -9.6)
-    # 1.3" 7-pin module (27.78 x 39.22) turned 90 deg so its header edge faces J5/J6 at the right board edge;
-    # rot 90: local +Y (header edge) -> board +X. Sits on the battery (battery bottom face z = -9.6).
-    ("DisplayModule", "ILL4", 34.0, 45.0, 90, "display_module.wrl", (0, 0, -9.7)),
+    # v1.3: 1.3" ST7789 7-pin module (27.78 x 39.22) plugged into the 1x7 female socket J5 at x = 56
+    # (pins y 37.38..52.62). rot 90: local +Y (header edge) -> board +X, so the header row sits at
+    # x = 58.5 - 2.5 = 56 and the body spans x 19.3..58.5, y 31.1..58.9. Module PCB face sits on top of
+    # the socket (8.5) plus its own header plastic (2.54): z = -(1.6 + 8.5 + 2.54) = -12.64.
+    ("DisplayModule", "ILL4", 38.89, 45.0, 90, "display_module.wrl", (0, 0, -12.64)),
 ]
 
 
@@ -78,8 +79,8 @@ body = text.rstrip()[:-1]
 extra = "".join(footprint(*it) for it in ITEMS)
 DST.write_text(body + extra + ")\n", encoding="utf-8", newline="\n")
 (OUT_DIR / "README.txt").write_text(
-    "僅供 3D 示意渲染用的板檔複本。多了 ILL1–ILL3 三個沒有焊盤的假零件，\n"
-    "掛著 models/ 內簡化的相機模組、microSD 卡、鋰電池 VRML 模型。\n"
+    "僅供 3D 示意渲染用的板檔複本。多了 ILL1–ILL4 四個沒有焊盤的假零件，\n"
+    "掛著 models/ 內簡化的相機模組、microSD 卡、鋰電池、1.3 吋螢幕模組 VRML 模型（v1.3 起螢幕插在 J5 母座上）。\n"
     "不要拿這個檔案出 Gerber；真正的板檔是上層的 esp32s3-camera.kicad_pcb。\n",
     encoding="utf-8",
 )
