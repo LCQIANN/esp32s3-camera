@@ -17,3 +17,7 @@ fp-info-cache
 Thumbs.db
 Desktop.ini
 .vscode/
+
+# SolidWorks 開檔時的鎖定檔
+~$*.SLDPRT
+~$*.SLDASM

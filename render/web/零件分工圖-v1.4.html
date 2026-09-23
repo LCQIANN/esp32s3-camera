@@ -1,0 +1,787 @@
+<title>ESP32-S3 相機板零件分工圖</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --bg: #eef1ec;
+    --panel: #ffffff;
+    --ink: #1b2420;
+    --ink-2: #55625b;
+    --line: #d3dad4;
+    --board: #2f5d46;
+    --board-edge: #1f3f30;
+    --board-text: #cfe3d6;
+    --keepout: #24483a;
+    --smt: #23a3a3;
+    --smt-ink: #0d6b6b;
+    --tht: #e0a021;
+    --tht-ink: #8a5f06;
+    --buy: #d1467f;
+    --buy-ink: #92285a;
+    --shell: #7d8fa6;
+    --shell-ink: #3f4f63;
+    --hole: #eef1ec;
+    --focus: #1b2420;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #131816;
+      --panel: #1c231f;
+      --ink: #e6ece7;
+      --ink-2: #a3b0a8;
+      --line: #2e3a33;
+      --board: #2a5540;
+      --board-edge: #4d8a6a;
+      --board-text: #bfd8c8;
+      --keepout: #1f3d30;
+      --smt: #3cc0c0;
+      --smt-ink: #8fe3e3;
+      --tht: #f0b23a;
+      --tht-ink: #ffd88a;
+      --buy: #ec6ea0;
+      --buy-ink: #ffb3d1;
+      --shell: #9fb0c6;
+      --shell-ink: #d3ddea;
+      --hole: #131816;
+      --focus: #e6ece7;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #131816;
+    --panel: #1c231f;
+    --ink: #e6ece7;
+    --ink-2: #a3b0a8;
+    --line: #2e3a33;
+    --board: #2a5540;
+    --board-edge: #4d8a6a;
+    --board-text: #bfd8c8;
+    --keepout: #1f3d30;
+    --smt: #3cc0c0;
+    --smt-ink: #8fe3e3;
+    --tht: #f0b23a;
+    --tht-ink: #ffd88a;
+    --buy: #ec6ea0;
+    --buy-ink: #ffb3d1;
+    --shell: #9fb0c6;
+    --shell-ink: #d3ddea;
+    --hole: #131816;
+    --focus: #e6ece7;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", "Noto Sans TC", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    padding-block: 28px 48px;
+    padding-inline: 16px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; display: grid; gap: 24px; }
+
+  header { display: grid; gap: 10px; }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2);
+  }
+  h1 {
+    font-family: "Chakra Petch", "Noto Sans TC", sans-serif;
+    font-weight: 600; font-size: clamp(24px, 3.4vw, 34px); line-height: 1.15; margin: 0;
+    text-wrap: balance;
+  }
+  .lede { max-width: 62ch; color: var(--ink-2); margin: 0; }
+  .version-note {
+    font-size: 13.5px; line-height: 1.6; color: var(--ink-2); max-width: 80ch;
+    border-left: 3px solid var(--smt); padding: 6px 12px; background: var(--panel); border-radius: 0 8px 8px 0;
+  }
+  .version-note b { color: var(--ink); font-weight: 600; }
+  .version-note span { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--ink); background: var(--bg); padding: 0 5px; border-radius: 4px; }
+  .version-note code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; }
+
+  .controls {
+    display: flex; flex-wrap: wrap; gap: 16px 24px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px;
+  }
+  .mode { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .mode-label { font-weight: 500; margin-right: 6px; }
+  .mode label {
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 14px; cursor: pointer;
+    font-size: 14px; user-select: none;
+  }
+  .mode input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .mode input:checked + span { color: var(--panel); }
+  .mode label:has(input:checked) { background: var(--ink); border-color: var(--ink); color: var(--panel); }
+  .mode label:has(input:focus-visible) { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 14px; }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .sw { width: 14px; height: 14px; border-radius: 3px; display: inline-block; }
+  .sw.smt { background: var(--smt); }
+  .sw.tht { background: var(--tht); }
+  .sw.buy { background: var(--buy); }
+  .sw.shell { background: var(--shell); }
+  .sw.tht-std {
+    background: repeating-linear-gradient(135deg, var(--smt) 0 3px, var(--tht) 3px 6px);
+  }
+
+  .views { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+  .view {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px;
+    display: grid; gap: 8px;
+  }
+  .view h2 {
+    font-family: "Chakra Petch", "Noto Sans TC", sans-serif; font-weight: 600; font-size: 18px; margin: 0;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+  }
+  .view h2 small { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--ink-2); font-weight: 400; }
+  .view svg { width: 100%; height: auto; display: block; }
+
+  .board { fill: var(--board); stroke: var(--board-edge); stroke-width: 0.5; }
+  .keepout { fill: var(--keepout); }
+  .hole { fill: var(--hole); stroke: var(--board-edge); stroke-width: 0.3; }
+  .board-label { fill: var(--board-text); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 2.3px; letter-spacing: 0.1px; }
+  .part { stroke-width: 0.25; cursor: help; }
+  .part.smt { fill: var(--smt); stroke: var(--smt-ink); }
+  .part.tht { fill: var(--tht); stroke: var(--tht-ink); }
+  :root[data-mode="standard"] .part.tht { fill: url(#hatch); stroke: var(--tht-ink); }
+  .part:hover { stroke: var(--ink); stroke-width: 0.6; }
+  .ref { pointer-events: none; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 1.9px; fill: var(--ink); }
+  .ref.on-board { fill: #ffffff; }
+  .buy-item { fill: var(--buy); stroke: var(--buy-ink); stroke-width: 0.35; }
+  .buy-item-ghost { fill: none; stroke: var(--buy); stroke-width: 0.5; stroke-dasharray: 1.2 0.9; }
+  .buy-label { font-family: "Noto Sans TC", sans-serif; font-size: 2.8px; font-weight: 500; fill: var(--buy-ink); }
+  .buy-sub { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 2.1px; fill: var(--ink-2); }
+  .leader { stroke: var(--buy); stroke-width: 0.4; fill: none; stroke-dasharray: 1 0.8; }
+  .lead-dot { fill: var(--buy); }
+  .shell-line { fill: none; stroke: var(--shell); stroke-width: 0.6; }
+  .shell-label { font-family: "Noto Sans TC", sans-serif; font-size: 2.6px; font-weight: 500; fill: var(--shell-ink); }
+
+  .lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; }
+  .card h3 {
+    margin: 0; font-family: "Chakra Petch", "Noto Sans TC", sans-serif; font-weight: 600; font-size: 17px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card h3 .sw { width: 16px; height: 16px; }
+  .count { margin-left: auto; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; color: var(--ink-2); font-weight: 400; }
+  .card ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+  .card li { font-size: 14px; }
+  .card li code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+  .note { font-size: 13px; color: var(--ink-2); margin: 0; }
+  .card.tht-card { border-top: 3px solid var(--tht); }
+  .card.smt-card { border-top: 3px solid var(--smt); }
+  .card.buy-card { border-top: 3px solid var(--buy); }
+
+  .foot { font-size: 13px; color: var(--ink-2); max-width: 70ch; }
+
+  .section-head { display: grid; gap: 4px; }
+  .section-head h2 {
+    font-family: "Chakra Petch", "Noto Sans TC", sans-serif; font-weight: 600; font-size: 22px; margin: 0;
+  }
+  .section-head p { margin: 0; color: var(--ink-2); max-width: 70ch; font-size: 14px; }
+  .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .gallery figure {
+    margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+    display: grid; grid-template-rows: auto 1fr;
+  }
+  .gallery figure.tall { grid-row: span 2; }
+  .gallery button.shot {
+    display: block; width: 100%; padding: 0; border: 0; background: #b9bcd0; cursor: zoom-in;
+  }
+  .gallery button.shot:focus-visible { outline: 2px solid var(--focus); outline-offset: -3px; }
+  .gallery img { display: block; width: 100%; height: auto; max-width: 100%; }
+  .gallery figcaption { padding: 10px 14px 12px; font-size: 13.5px; display: grid; gap: 2px; }
+  .gallery figcaption b { font-weight: 500; }
+  .gallery figcaption span { color: var(--ink-2); font-size: 12.5px; }
+
+  .lightbox {
+    position: fixed; inset: 0; background: rgba(10, 14, 12, 0.88); display: grid; place-items: center;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 16px calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 10; cursor: zoom-out;
+  }
+  .lightbox img { max-width: 100%; max-height: 100%; border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+
+  .photos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+  .photo-card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 6px; align-content: start; }
+  .photo-card h3 { margin: 0; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .photo-card p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+  .photo-card a { color: var(--smt-ink); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; font-size: 13.5px; }
+  .photo-card a:hover { text-decoration-color: currentColor; }
+  .photo-card ul { margin: 0; padding-left: 16px; display: grid; gap: 3px; }
+  .tag { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink-2); font-weight: 400; }
+
+  .buy-block { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 6px; display: grid; gap: 8px; }
+  .buy-block h3 { margin: 0; font-family: "Chakra Petch", "Noto Sans TC", sans-serif; font-weight: 600; font-size: 17px; display: flex; align-items: center; gap: 10px; }
+  .buy-block h3 .sw { width: 16px; height: 16px; }
+  .buy-block p { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+  .table-wrap { overflow-x: auto; margin: 0 -16px; padding: 0 16px 10px; }
+  table.buy { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 13.5px; }
+  table.buy th, table.buy td { text-align: left; vertical-align: top; padding: 8px 10px; border-top: 1px solid var(--line); }
+  table.buy th { font-weight: 500; color: var(--ink-2); font-size: 12.5px; letter-spacing: 0.02em; border-top: 0; }
+  table.buy td:first-child { font-weight: 500; white-space: nowrap; }
+  table.buy a { color: var(--smt-ink); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+  table.buy a:hover { text-decoration-color: currentColor; }
+  table.buy code { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; background: var(--bg); padding: 1px 5px; border-radius: 4px; }
+  table.buy td.num { font-variant-numeric: tabular-nums; }
+  .minimal { font-size: 13.5px; padding: 10px 14px; border-radius: 10px; background: var(--bg); border: 1px dashed var(--line); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .part { transition: stroke-width 120ms ease; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">ESP32-S3 Camera · v1.4 · 60 × 85 mm · 4 層 · 含 3D 列印外殼</div>
+    <h1>哪些零件 JLCPCB 幫你焊好，哪些要自己買</h1>
+    <p class="lede">依實際 PCB 座標繪製。滑到零件上可看料號。切換組裝方案會改變兩顆插件的歸屬。</p>
+    <div class="version-note">
+      <b>本頁對應電路板 v1.4</b>（2026-09-22 定稿，快照存在專案 <code>versions/v1.4/</code>，含 Gerber、BOM、CPL、ERC/DRC 報告，視為唯讀；v1.2、v1.3 都沒有下單）。
+      版本沿革：<span>v1.0</span> 最初佈局 → <span>v1.1</span> 相機腳位改 ESP32-CAM 標準、加相機 LDO、填 LCSC 料號 → <span>v1.2</span> 加電源開關 SW4、EN 上拉 R21、藍色電源燈 D5、ON/OFF 絲印 → <span>v1.3</span> J5/J6 兩條排針換成 1×7 螢幕母座 J5，1.3 吋螢幕直插 → <span>v1.4</span> 快門 SW3 換成側按式 ALPS SKRTLAE010 移到上板邊右段，右手食指的位置。
+      外殼是相機式兩片殼，鏡頭在正面、螢幕在背面、快門在頂邊，見頁面下方。
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="mode">
+      <span class="mode-label">PCBA 方案</span>
+      <label><input type="radio" name="mode" id="mode-economic" value="economic" checked><span>Economic 只焊 SMD</span></label>
+      <label><input type="radio" name="mode" id="mode-standard" value="standard"><span>Standard 含插件</span></label>
+    </div>
+    <div class="legend">
+      <span><i class="sw smt"></i>JLCPCB 貼好（SMD，58 顆）</span>
+      <span id="lg-tht-eco"><i class="sw tht"></i>插件，Economic 要自己焊（2 顆）</span>
+      <span id="lg-tht-std" hidden><i class="sw tht-std"></i>插件，Standard 由 JLCPCB 焊（2 顆）</span>
+      <span><i class="sw buy"></i>板外零件，一律自己買</span>
+      <span><i class="sw shell"></i>外殼開孔位置</span>
+    </div>
+  </div>
+
+  <section class="views">
+    <div class="view">
+      <h2>頂面 Top <small>F.Cu · 30 顆 SMD · 鏡頭面</small></h2>
+      <svg id="top" viewBox="-6 -34 104 128" role="img" aria-label="頂面零件分布圖，含相機模組、側按快門與 USB-C 線">
+        <defs>
+          <pattern id="hatch" width="1.6" height="1.6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <rect width="1.6" height="1.6" fill="var(--tht)"/>
+            <rect width="0.8" height="1.6" fill="var(--smt)"/>
+          </pattern>
+        </defs>
+      </svg>
+    </div>
+    <div class="view">
+      <h2>底面 Bottom <small>B.Cu · 28 顆 SMD + 2 插件 · 從底面看 · 螢幕面</small></h2>
+      <svg id="bottom" viewBox="-6 -8 104 128" role="img" aria-label="底面零件分布圖，含 microSD 卡、鋰電池與螢幕母座"></svg>
+    </div>
+  </section>
+
+  <section class="lists">
+    <div class="card smt-card">
+      <h3><i class="sw smt"></i>JLCPCB 貼好 <span class="count">58 顆 · 32 項</span></h3>
+      <ul>
+        <li>U1 ESP32-S3-WROOM-1-N16R8 模組 <code>C2913202</code></li>
+        <li>U2 AP2112K 3.3V LDO、U5 2.8V、U6 1.2V LDO</li>
+        <li>U3 TP4056 充電、U4 USBLC6 ESD、Q1 Q2 MOSFET</li>
+        <li>J1 USB-C 座、J2 24P FPC 座、J3 microSD 座</li>
+        <li>SW1 BOOT、SW2 RESET 頂按式；<b>SW3 快門 側按式 ALPS SKRTLAE010</b> <code>C110293</code>（v1.4 換料號並移到上板邊）</li>
+        <li>SW4 電源滑動開關 <code>C431540</code>、D5 藍色電源燈 <code>C2288</code>（v1.2 新增）</li>
+        <li>D1 D2 D4 LED、D3 B5819W <code>C8598</code></li>
+        <li>21 顆電阻、17 顆電容，全部 Basic Part</li>
+      </ul>
+      <p class="note">上傳 <code>fab/esp32s3-camera-bom.csv</code> 與 CPL 即可，料號已填在 BOM 內。SW3 缺貨時不要讓系統換成頂按式，要找同尺寸 4.5 × 3.55 的側按品並核對封裝。</p>
+    </div>
+
+    <div class="card tht-card">
+      <h3><i class="sw tht"></i>插件兩顆 <span class="count" id="tht-count">Economic：自己焊</span></h3>
+      <ul>
+        <li>J4 JST PH 2.0 mm 2P 立式電池座 <code>C131337</code></li>
+        <li>J5 螢幕母座 1×7 2.54 mm 立式（CJT A2541WV-7P）<code>C225482</code>（v1.3 起，取代原本的 J5、J6 排針）</li>
+      </ul>
+      <p class="note" id="tht-note-eco">Economic 只焊 SMD。這兩顆會被略過，要自己買回來手焊。J4 一定要焊才能接電池；J5 要焊才能插螢幕。</p>
+      <p class="note" id="tht-note-std" hidden>Standard 方案含插件焊接，這兩顆 JLCPCB 會一起焊好，不用自己買。</p>
+    </div>
+
+    <div class="card buy-card">
+      <h3><i class="sw buy"></i>板外零件，自己買 <span class="count">7 項</span></h3>
+      <ul>
+        <li>OV2640 相機模組，24pin 0.5 mm 排線，ESP32-CAM 相容 → 插 J2</li>
+        <li>1.3 吋 IPS 240×240 ST7789 螢幕，7 pin 直排針已焊 → 直插 J5，不用線</li>
+        <li>3.7V 鋰電池，JST PH 2.0 插頭，帶保護板 → 插 J4</li>
+        <li>microSD 卡 8–32GB → 插 J3</li>
+        <li>USB-C 線 → 插 J1</li>
+        <li>M2 × 25 盤頭螺絲 4 支 → 從外殼背面鎖穿 H1–H4</li>
+        <li>3D 列印外殼三件：前殼、後殼、快門帽（STL 在專案 <code>enclosure/</code>）</li>
+      </ul>
+      <p class="note">相機排線容易折壞，建議多買一條備用。電池插頭極性沒有統一規範，收到先量。螢幕插上前先對一次模組上的 GND 字有沒有對到板上 GND 那格。</p>
+    </div>
+  </section>
+
+  <p class="foot">零件位置取自 <code>esp32s3-camera.kicad_pcb</code> 與 <code>fab/esp32s3-camera-cpl.csv</code>；底面視圖已左右鏡像，與 KiCad 3D 檢視及 JLCPCB 預覽的底面一致。四角圓孔為 M2 定位孔。灰藍色虛線是外殼開孔的位置。</p>
+
+  <section class="section-head" id="assembled">
+    <h2>組裝完成示意</h2>
+    <p>板子焊好、相機排線插進 J2 後反折 180° 讓模組貼回板面、microSD 卡插進 J3、鋰電池墊在底面、1.3 吋預覽螢幕直接插在底面的 J5 母座上朝外的樣子。模組落在按鍵那一欄與 U4 之間的空區，鏡頭朝上，底下墊一塊約 2 mm 厚的雙面泡棉膠。相機模組、記憶卡、電池、螢幕是依實際尺寸畫的簡化模型（相機模組 9 × 9 mm 感光板加 8.5 mm 鏡座與 21 mm 排線，電池 30 × 40 × 6 mm，螢幕 27.78 × 39.22 mm），側按快門 SW3 是依 ALPS 圖面做的簡化模型，其餘全部是 KiCad 庫的原廠 3D 模型。點圖可放大。</p>
+  </section>
+  <div class="gallery">
+    <figure>
+      <button class="shot" type="button" data-full="render/assembled-iso-top.png" aria-label="放大組裝完成頂面立體圖"><img src="render/assembled-iso-top.png" alt="組裝完成的頂面立體圖：相機模組經排線插在 J2，USB-C 座、按鍵、ESP32 模組都已到位" loading="lazy"></button>
+      <figcaption><b>組裝完成，頂面（鏡頭面）</b><span>橘色排線從 J2 出來反折，相機模組躺回板面、鏡頭朝上；左欄只剩 BOOT、RESET 兩顆鍵，快門已移到上板邊右段</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="render/closeup-shutter.png" aria-label="放大上板邊右段快門與電源開關特寫"><img src="render/closeup-shutter.png" alt="上板邊右段特寫：側按式快門 SW3 觸桿朝板邊，旁邊是 SW4 電源開關與藍色電源燈 D5" loading="lazy"></button>
+      <figcaption><b>快門與電源開關，v1.4</b><span>SW3 側按式快門的觸桿朝上板邊伸出，由外殼上牆的快門帽按壓；右邊 SW4 撥桿突出右板邊，撥向板子上緣是 OFF、撥向模組是 ON；D5 藍燈接 3.3V 開機必亮</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="render/assembled-iso-right.png" aria-label="放大組裝完成右側視角"><img src="render/assembled-iso-right.png" alt="從右側看組裝完成的板子：螢幕模組插在 J5 母座上，蓋在電池上方" loading="lazy"></button>
+      <figcaption><b>組裝完成，從開關那一側看</b><span>螢幕模組的 7 pin 直排針插進 J5 母座，身體蓋在電池上方；模組背面離板底 11.0 mm，亮面約 13.9 mm</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="render/assembled-iso-bottom.png" aria-label="放大組裝完成底面立體圖"><img src="render/assembled-iso-bottom.png" alt="組裝完成的底面立體圖：螢幕模組插在 J5 上，鋰電池墊在底面，microSD 卡插在 J3" loading="lazy"></button>
+      <figcaption><b>組裝完成，底面（螢幕面）</b><span>603040 鋰電池（30 × 40 × 6 mm）墊 2 mm 泡棉貼在底面中央 (34, 44)；1.3 吋 IPS ST7789 螢幕轉 90° 讓 7 pin 排針邊對準右板邊的 J5 母座直插，亮面朝外；microSD 卡插在 J3</span></figcaption>
+    </figure>
+    <figure class="tall">
+      <button class="shot" type="button" data-full="render/assembled-bottom.png" aria-label="放大組裝完成底面正視圖"><img src="render/assembled-bottom.png" alt="組裝完成的底面正視圖：1.3 吋預覽螢幕插在 J5 母座上朝外，旁邊是 microSD 座與電池座" loading="lazy"></button>
+      <figcaption><b>組裝完成，底面正視（含螢幕）</b><span>從底面看，這一面就是使用者看的那一面：螢幕亮面朝外，鏡頭在反面。模組投影 x 19.3–58.5、y 31.1–58.9，四角 Ø2 孔在 (21.8, 33.6)、(56, 33.6)、(21.8, 56.4)、(56, 56.4) 套進外殼的定位柱；有效顯示區 23.4 × 23.4 中心約 (40.5, 45)，外殼螢幕窗對這裡。母座腳序就是模組腳序：GND、3V3、SCL (GPIO44)、SDA (GPIO43)、RES (GPIO6)、DC (GPIO5)、BLK (GPIO4)</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="render/assembled-bottom-low.png" aria-label="放大底面低角度圖"><img src="render/assembled-bottom-low.png" alt="底面低角度視角：螢幕模組浮在電池上方，中間是母座" loading="lazy"></button>
+      <figcaption><b>底面低角度，看高度</b><span>電池加泡棉 8 mm；母座 8.5 mm 加模組自帶排針塑膠 2.54 mm，模組 PCB 背面在 11.0 mm，還有 3 mm 餘裕；亮面約 13.9 mm，外殼底側內深 14.5 mm 就是照這個定的</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="render/closeup-camera-module.png" aria-label="放大 OV2640 相機模組特寫"><img src="render/closeup-camera-module.png" alt="OV2640 相機模組特寫：黑色鏡座、圓形鏡筒與銀色壓環、藍色鏡片，下方是橘色排線" loading="lazy"></button>
+      <figcaption><b>OV2640 相機模組特寫</b><span>排線反折蓋過 J2 後接到模組，模組底下是泡棉膠墊；9 × 9 mm 感光板、8.5 mm 鏡座、Ø6.5 mm 鏡筒，實品鏡片會有藍紫色鍍膜反光</span></figcaption>
+    </figure>
+    <figure class="tall">
+      <button class="shot" type="button" data-full="render/assembled-top.png" aria-label="放大組裝完成頂面正視圖"><img src="render/assembled-top.png" alt="組裝完成的頂面正視圖，相機模組貼在板面、快門在上板邊" loading="lazy"></button>
+      <figcaption><b>組裝完成，頂面正視</b><span>模組落在 x 25.5–34.5、y 20.5–29.5 mm 的空區，鏡頭中心 (30, 25)，外殼鏡頭孔對這個位置；上板邊 x 47.6–53.6 是快門</span></figcaption>
+    </figure>
+  </div>
+
+  <section class="section-head" id="enclosure">
+    <h2>3D 列印外殼</h2>
+    <p>相機式兩片殼，SolidWorks 2024 依板檔座標用腳本建模，組合件放進了板子的 STEP 並做過干涉檢查。前殼是鏡頭面：Ø10 鏡頭孔加一圈 Ø16 凸起 1.5 mm 的鏡座環、上牆的快門帽、BOOT/RESET 兩個 Ø2 針孔、三個 LED 導光孔、左側六道握持溝紋、右側牆的 USB-C 窗與電源開關槽。後殼是螢幕面：24.5 × 24.5 螢幕窗、左側牆記憶卡槽、四支 Ø5 板子立柱，另有四支 Ø4 螢幕定位柱，頂端 Ø1.8 凸柱插進螢幕模組四角的 Ø2 孔，模組不靠母座懸著。兩面外緣整圈 R2.5 倒圓、直角 R4.5，螢幕窗外有一層 0.8 mm 內縮的邊框。整組 65 × 90 × 27.6 mm，壁厚 2 mm，四支 M2×25 從背面鎖穿。STL、SLDPRT 與尺寸依據表在專案 <code>enclosure/</code>。點圖可放大。</p>
+  </section>
+  <div class="gallery">
+    <figure class="tall">
+      <button class="shot" type="button" data-full="enclosure/enclosure-exploded.png" aria-label="放大外殼爆炸圖"><img src="enclosure/enclosure-exploded.png" alt="外殼爆炸圖：前殼、板子、後殼分開排列" loading="lazy"></button>
+      <figcaption><b>爆炸圖</b><span>左：前殼（鏡頭孔、兩個針孔、上牆快門窗）；中：板子；右：後殼（螢幕窗、四角四支板子立柱、螢幕窗旁四支較矮的螢幕定位柱）。板子四角落在立柱上，前殼四支 Ø4.6 柱壓住板面，螺絲從後殼底面沉孔鎖穿到前殼</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/enclosure-iso.png" aria-label="放大外殼立體圖"><img src="enclosure/enclosure-iso.png" alt="外殼合起來的立體圖：鏡頭面朝前，頂邊有快門帽，右側有 USB-C 窗與開關槽" loading="lazy"></button>
+      <figcaption><b>合起來，鏡頭面</b><span>頂邊露出 1 mm 的小方塊是快門帽，右手食指剛好在那；鏡頭外一圈是凸起的鏡座環，左側是握持溝紋；右側牆上面是電源開關槽加指窪，下面是 USB-C 窗</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/enclosure-lens-side.png" aria-label="放大鏡頭面正視"><img src="enclosure/enclosure-lens-side.png" alt="鏡頭面正視：鏡頭孔、兩個針孔、三個 LED 導光孔" loading="lazy"></button>
+      <figcaption><b>鏡頭面正視</b><span>Ø10 鏡頭孔對 (30, 25)，外圈 Ø16 鏡座環；左欄兩個 Ø2 針孔是 RESET 與 BOOT，用 SIM 卡針按；上方三個小孔是 D4 白、D1 綠，右上是 D5 藍色電源燈</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/enclosure-screen-side.png" aria-label="放大螢幕面正視"><img src="enclosure/enclosure-screen-side.png" alt="螢幕面正視：螢幕窗、四個螺絲沉孔、充電燈孔" loading="lazy"></button>
+      <figcaption><b>螢幕面正視</b><span>24.5 × 24.5 螢幕窗壓在模組玻璃邊上（內側貼 0.5 mm 泡棉），外圈 28.5 × 28.5 內縮 0.8 mm 的邊框，四角是 M2 螺絲頭沉孔，左上小孔透 D2 紅色充電燈</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/enclosure-right-usb-switch.png" aria-label="放大右側牆"><img src="enclosure/enclosure-right-usb-switch.png" alt="右側牆：電源開關槽與指窪、USB-C 窗" loading="lazy"></button>
+      <figcaption><b>右側牆</b><span>上：電源開關槽 y 7–15 加 1 mm 深指窪，撥桿只伸出板邊 0.7 mm 所以牆要薄；下：USB-C 窗 y 18.75–29.25、高 4.2 mm</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/enclosure-left-sd.png" aria-label="放大左側牆"><img src="enclosure/enclosure-left-sd.png" alt="左側牆：記憶卡插槽在分模線下方" loading="lazy"></button>
+      <figcaption><b>左側牆</b><span>記憶卡槽在分模線下方的後殼上，卡插到底仍露出殼外 2 mm 好拔</span></figcaption>
+    </figure>
+  </div>
+
+  <section class="section-head" id="renders">
+    <h2>裸板貼片後的 3D 渲染</h2>
+    <p>只有 JLCPCB 出貨時板上會有的零件，沒有板外零件。用 KiCad 10 光線追蹤引擎從 v1.4 板檔輸出，點圖可放大。</p>
+  </section>
+  <div class="gallery">
+    <figure>
+      <button class="shot" type="button" data-full="render/iso-top.png" aria-label="放大頂面立體圖"><img src="render/iso-top.png" alt="頂面立體視角：兩顆按鍵、FPC 座、上板邊的側按快門、ESP32 模組與天線淨空區" loading="lazy"></button>
+      <figcaption><b>頂面立體</b><span>相機 FPC 座在上緣，快門在上緣右段，模組天線端懸在下方淨空區</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="render/iso-bottom.png" aria-label="放大底面立體圖"><img src="render/iso-bottom.png" alt="底面立體視角：microSD 座、JST 電池座、1×7 螢幕母座與電源電路" loading="lazy"></button>
+      <figcaption><b>底面立體</b><span>microSD 座、JST 電池座與 J5 螢幕母座都在這一面；右板邊那條細線是快門訊號，從模組下方繞上來</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="render/closeup-camera.png" aria-label="放大相機接頭特寫"><img src="render/closeup-camera.png" alt="相機 FPC 座特寫，旁邊是 2.8V 與 1.2V LDO 及去耦電容" loading="lazy"></button>
+      <figcaption><b>相機接頭特寫</b><span>J2 掀蓋式 24P 座，右側 U5、U6 兩顆 LDO 供相機電源（v1.3 前的渲染，這一區沒變）</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="render/closeup-usb.png" aria-label="放大 USB-C 與 ESD 區特寫"><img src="render/closeup-usb.png" alt="USB-C 座 J1 與 ESD 保護 U4 特寫" loading="lazy"></button>
+      <figcaption><b>USB-C 區特寫</b><span>J1 母座開口朝板邊，下方 U4 是 USB ESD 保護（這一區沒變）</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="render/closeup-j4.png" aria-label="放大 J4 電池座特寫"><img src="render/closeup-j4.png" alt="底面 J4 電池座特寫，左上角有 L 形絲印記號標示 pin 1" loading="lazy"></button>
+      <figcaption><b>J4 電池座，從底面看</b><span>L 形絲印記號那一側是 pin 1（電池正極 VBAT），另一腳是 GND。以底面朝自己、天線那端朝下來看，pin 1 在左邊、靠板子中央</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="render/low-angle.png" aria-label="放大低角度側視圖"><img src="render/low-angle.png" alt="低角度側視，可見零件高度與板厚" loading="lazy"></button>
+      <figcaption><b>低角度側視</b><span>看零件高度，底面的螢幕母座 8.5 mm 是最高的插件</span></figcaption>
+    </figure>
+    <figure class="tall">
+      <button class="shot" type="button" data-full="render/top.png" aria-label="放大頂面正視圖"><img src="render/top.png" alt="頂面正視圖" loading="lazy"></button>
+      <figcaption><b>頂面正視</b><span>與 JLCPCB 預覽的 Top 對應</span></figcaption>
+    </figure>
+    <figure class="tall">
+      <button class="shot" type="button" data-full="render/bottom.png" aria-label="放大底面正視圖"><img src="render/bottom.png" alt="底面正視圖，從底面看，J5 母座旁每支腳都有絲印" loading="lazy"></button>
+      <figcaption><b>底面正視</b><span>從底面看，與 JLCPCB 預覽的 Bottom 對應；J5 每格旁印了 GND 3V3 SCL SDA RES DC BLK</span></figcaption>
+    </figure>
+  </div>
+
+  <section class="section-head" id="shopping">
+    <h2>採購清單與購買網址</h2>
+    <p>2026-09-22 整理，與專案 <code>fab/採購清單.md</code> 同步。連結與價格為查詢當日所見，下單前再確認庫存與規格。</p>
+  </section>
+
+  <div class="buy-block">
+    <h3><i class="sw smt"></i>A. 板子與板上零件：JLCPCB 一次搞定</h3>
+    <p>上傳 <code>fab/esp32s3-camera-gerber.zip</code>、<code>fab/esp32s3-camera-bom.csv</code>、<code>fab/esp32s3-camera-cpl.csv</code>（或 <code>fab/JLCPCB-上傳-v1.4/</code> 裡重新命名好的三個檔）。BOM 已含 LCSC 料號，58 顆 SMD 由 JLCPCB 貼好，不用自己買。步驟見 <code>fab/JLCPCB-下單清單.md</code>。</p>
+    <div class="table-wrap">
+      <table class="buy">
+        <tr><th>項目</th><th>規格</th><th>備註</th></tr>
+        <tr><td>PCB</td><td>60 × 85 mm、4 層、1.6 mm、1 oz、ENIG 建議</td><td>最少 5 片</td></tr>
+        <tr><td>PCBA</td><td>Standard（含插件）或 Economic（只焊 SMD），雙面貼片</td><td>最少 2 片</td></tr>
+        <tr><td>配對頁要看的料號</td><td>U1 <code>C2913202</code>（N16R8 模組，可能預購）、D3 <code>C8598</code>（SOD-123，不是 SS14）、SW4 <code>C431540</code>、SW3 <code>C110293</code>（ALPS SKRTLAE010 側按，不要被換成頂按式）</td><td>逐行確認有貨</td></tr>
+      </table>
+    </div>
+    <p><b>選 Economic 方案時要自己買並手焊的插件：</b></p>
+    <div class="table-wrap">
+      <table class="buy">
+        <tr><th>零件</th><th>連結</th><th>備註</th></tr>
+        <tr><td>J4 JST PH 2.0 mm 2P 立式座</td><td><a href="https://www.lcsc.com/product-detail/Wire-To-Board-Connector_JST-B2B-PH-K-S-LF-SN_C131337.html" target="_blank" rel="noopener">LCSC C131337</a></td><td>電池座</td></tr>
+        <tr><td>J5 2.54 mm 1×7 立式母座（8.5 mm 高）</td><td><a href="https://www.lcsc.com/product-detail/C225482.html" target="_blank" rel="noopener">LCSC C225482 CJT A2541WV-7P</a>，或 ICShop／蝦皮任何「單排母座 2.54 1×7」（買 1×40 剪也行）</td><td>螢幕直插用；不要買 90° 或矮款，高度會變</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="buy-block">
+    <h3><i class="sw buy"></i>B. 板外零件：一律自己買</h3>
+    <div class="table-wrap">
+      <table class="buy">
+        <tr><th>品項</th><th>規格</th><th>連結</th><th>備註</th></tr>
+        <tr><td>OV2640 相機模組</td><td>24 pin 0.5 mm 排線，ESP32-CAM 相容，排線約 21 mm</td><td><a href="https://www.icshop.com.tw/products/368030501479" target="_blank" rel="noopener">ICShop OV2640 攝影鏡頭 75°</a>（NT$110）、<a href="https://www.aliexpress.us/item/3256802773370193.html" target="_blank" rel="noopener">AliExpress 多焦距／夜視版</a></td><td>排線易折，多買一條。確認是 24P 0.5 mm、ESP32-CAM 用</td></tr>
+        <tr><td>鋰電池</td><td>3.7V 單芯，603040 或 503040 約 600 mAh，帶保護板，JST PH 2.0 插頭</td><td><a href="https://www.100y.com.tw/product/158757" target="_blank" rel="noopener">勝特力 503040 600mAh</a>、<a href="https://www.yfe2019.com.tw/products/3.7V600mA%E8%81%9A%E5%90%88%E7%89%A9%E9%8B%B0%E9%9B%BB%E6%B1%A0503040-5e8561f5986e57d2.html" target="_blank" rel="noopener">詠豐電子 503040</a>、<a href="https://www.icshop.com.tw/products/368090500104" target="_blank" rel="noopener">ICShop 150mAh</a></td><td>收到先量極性，J4 pin 1 = 正極。換小電池要改 R3</td></tr>
+        <tr><td>預覽螢幕</td><td>通用型 1.3 吋 IPS 240×240 ST7789，7 pin 2.54 mm 直排針已焊，27.78 × 39.22 mm，直插 J5</td><td><a href="https://www.aliexpress.us/item/2255800033232649.html" target="_blank" rel="noopener">AliExpress 1.3" IPS ST7789</a>、<a href="https://www.aliexpress.us/item/2251832694355820.html" target="_blank" rel="noopener">AliExpress 另一賣家</a>；蝦皮搜「1.3吋 IPS 240x240 ST7789 7pin」約 NT$150–220</td><td>替代：<a href="https://www.icshop.com.tw/products/368031700013" target="_blank" rel="noopener">ICShop Waveshare 1.3inch LCD Module</a>（NT$225），板子較大、腳序不同，不能直插，要用它附的線接</td></tr>
+        <tr><td>microSD 卡</td><td>8–32 GB，Class 10</td><td>任何通路</td><td>金手指朝板子插入 J3</td></tr>
+        <tr><td>USB-C 線</td><td>要能傳資料</td><td>任何通路</td><td>燒錄與充電</td></tr>
+        <tr><td>M2 螺絲</td><td>M2 × 25 mm 盤頭 4 支</td><td>ICShop／蝦皮</td><td>從後殼底部沉孔穿過立柱與板子，自攻進前殼的導孔；螢幕靠後殼四支定位柱插進四角孔加窗框泡棉夾住，不用鎖</td></tr>
+        <tr><td>雙面泡棉膠</td><td>約 2 mm 厚</td><td>五金行</td><td>相機模組底下 8 × 8 mm，電池底下 26 × 36 mm</td></tr>
+        <tr><td>外殼</td><td>3D 列印三件：前殼約 20 g、後殼約 29 g、快門帽；PLA/PETG，0.2 mm 層高，不需支撐</td><td>STL 在專案 <code>enclosure/</code></td><td>開孔：鏡頭 (30, 25)、快門上板邊 x 47.6–53.6、BOOT/RESET 針孔 (9, 24) (9, 32)、開關右板邊 y 8–14、USB-C 右板邊 y 19.5–28.5、記憶卡左板邊 y 36–52、螢幕窗 23.4 × 23.4 中心 (40.5, 45)</td></tr>
+      </table>
+    </div>
+    <p class="minimal"><b>只想先點亮板子的最小採購：</b>相機模組、電池、microSD 卡、USB-C 線，Economic 方案再加 J4 電池座。</p>
+  </div>
+
+  <div class="buy-block">
+    <h3><i class="sw tht"></i>C. JLCPCB 的 ESP32-S3 模組缺貨時</h3>
+    <div class="table-wrap">
+      <table class="buy">
+        <tr><th>品項</th><th>連結</th><th>備註</th></tr>
+        <tr><td>ESP32-S3-WROOM-1-N16R8</td><td><a href="https://www.digikey.tw/zh/products/detail/espressif-systems/ESP32-S3-WROOM-1-N16R8/16162642" target="_blank" rel="noopener">DigiKey 台灣</a></td><td>滿 NT$1400 免運</td></tr>
+        <tr><td>同上</td><td><a href="https://www.icshop.com.tw/products/368030501809" target="_blank" rel="noopener">ICShop ESP32-S3-WROOM 模組</a></td><td>確認是 N16R8 版</td></tr>
+      </table>
+    </div>
+    <p>買回來用 JLCPCB 的代寄零件（Consigned parts）服務寄給他們，或自己回焊。</p>
+  </div>
+
+  <section class="section-head" id="photos">
+    <h2>板外零件實物照片</h2>
+    <p>板子本身還沒製作，沒有實拍。板外零件的實物照片在各賣場頁面，這裡不重製圖片，直接附連結。</p>
+  </section>
+  <div class="photos">
+    <div class="photo-card">
+      <h3><i class="sw buy"></i>OV2640 相機模組 <span class="tag">→ J2</span></h3>
+      <p>黑色方形感光板加一條 24pin 棕色軟排線，鏡頭在正面。排線接觸面朝下插入 J2。</p>
+      <ul>
+        <li><a href="https://www.icshop.com.tw/products/368030501479" target="_blank" rel="noopener">ICShop OV2640 攝影鏡頭 75°</a></li>
+        <li><a href="https://www.aliexpress.us/item/3256802773370193.html" target="_blank" rel="noopener">AliExpress 多種焦距與夜視版</a></li>
+        <li><a href="https://shop.playrobot.com/products/cee0055" target="_blank" rel="noopener">Play Robot ESP32-CAM 含模組（可拆用）</a></li>
+      </ul>
+    </div>
+    <div class="photo-card">
+      <h3><i class="sw buy"></i>1.3 吋 ST7789 螢幕 <span class="tag">→ J5</span></h3>
+      <p>藍色小板、黑框正方形玻璃，一邊焊好 7 支直排針，印著 GND VCC SCL SDA RES DC BLK。插上去前對一次板上絲印。</p>
+      <ul>
+        <li><a href="https://www.aliexpress.us/item/2255800033232649.html" target="_blank" rel="noopener">AliExpress 1.3" IPS 240×240 ST7789 7pin</a></li>
+        <li><a href="https://www.icshop.com.tw/products/368031700013" target="_blank" rel="noopener">ICShop Waveshare 1.3inch LCD Module（替代，要用線接）</a></li>
+      </ul>
+    </div>
+    <div class="photo-card">
+      <h3><i class="sw buy"></i>3.7V 鋰電池 <span class="tag">→ J4</span></h3>
+      <p>銀色鋁塑軟包，一端有黃色膠帶包住的保護板，兩線紅黑接白色 JST PH 2.0 插頭。</p>
+      <ul>
+        <li><a href="https://www.icshop.com.tw/products/368090500165" target="_blank" rel="noopener">ICShop 2400mAh</a></li>
+        <li><a href="https://www.icshop.com.tw/products/368090500104" target="_blank" rel="noopener">ICShop 150mAh</a></li>
+        <li><a href="https://tw.bid.yahoo.com/item/100076609165" target="_blank" rel="noopener">Yahoo 拍賣 950mAh 含保護板</a></li>
+      </ul>
+    </div>
+    <div class="photo-card">
+      <h3><i class="sw buy"></i>microSD 卡、USB-C 線、M2 螺絲 <span class="tag">→ J3 / J1 / H1–H4</span></h3>
+      <p>通用品，任何通路皆可。USB-C 線要能傳資料，不要只能充電的線。螺絲是 M2 × 25 盤頭，配合外殼的沉孔與導孔。</p>
+    </div>
+    <div class="photo-card">
+      <h3><i class="sw smt"></i>板上連接器與開關的長相 <span class="tag">JLCPCB 貼好</span></h3>
+      <p>想先知道焊上去是什麼樣子，LCSC 產品頁有實物照。</p>
+      <ul>
+        <li><a href="https://www.lcsc.com/product-detail/Tactile-Switches_ALPS_SKRTLAE010_SKRTLAE010_C110293.html" target="_blank" rel="noopener">SW3 ALPS SKRTLAE010 側按快門</a></li>
+        <li><a href="https://www.lcsc.com/product-detail/C225482.html" target="_blank" rel="noopener">J5 CJT A2541WV-7P 1×7 母座</a></li>
+        <li><a href="https://www.lcsc.com/product-detail/C202112.html" target="_blank" rel="noopener">J2 Hirose FH12-24S-0.5SH 掀蓋 FPC 座</a></li>
+        <li><a href="https://lcsc.com/product-detail/C114218.html" target="_blank" rel="noopener">J3 Hirose DM3AT microSD 座</a></li>
+        <li><a href="https://www.lcsc.com/product-detail/C2894897.html" target="_blank" rel="noopener">J1 HCTL 16P USB-C 座</a></li>
+        <li><a href="https://www.lcsc.com/product-detail/C131337.html" target="_blank" rel="noopener">J4 JST B2B-PH-K-S 電池座</a></li>
+        <li><a href="https://www.lcsc.com/product-detail/WiFi-Modules_Espressif-Systems-ESP32-S3-WROOM-1-N16R8_C2913202.html" target="_blank" rel="noopener">U1 ESP32-S3-WROOM-1-N16R8 模組</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  // ref, value, lcsc, x, y, rot, side, w, h, cat   (mm, KiCad top-view coordinates)
+  const P = [
+    ["C8","10u 0805","C15850",20,13,0,"T",2.0,1.25,"smt"],
+    ["C9","100n 0603","C14663",24,13,0,"T",1.6,0.8,"smt"],
+    ["C12","1u 0603（v1.4 下移 0.8 mm）","C15849",47.5,6.3,90,"T",1.6,0.8,"smt"],
+    ["C13","10u 0805","C15850",40.3,9,90,"T",2.0,1.25,"smt"],
+    ["C14","100n 0603","C14663",40.3,12.5,90,"T",1.6,0.8,"smt"],
+    ["C15","1u 0603","C15849",47.5,14,90,"T",1.6,0.8,"smt"],
+    ["C16","10u 0805","C15850",40.3,17,90,"T",2.0,1.25,"smt"],
+    ["C17","100n 0603","C14663",40.3,20.5,90,"T",1.6,0.8,"smt"],
+    ["D1","GREEN LED 0603","C72043",14,4.5,0,"T",1.6,0.8,"smt"],
+    ["D4","WHITE LED 0603","C2290",9,4.5,0,"T",1.6,0.8,"smt"],
+    ["Q1","AO3400A SOT-23","C20917",7,13,0,"T",3.0,2.6,"smt"],
+    ["R1","5.1k","C23186",52,38,0,"T",1.6,0.8,"smt"],
+    ["R2","5.1k","C23186",52,42,0,"T",1.6,0.8,"smt"],
+    ["R9","1k","C21190",14,8.5,0,"T",1.6,0.8,"smt"],
+    ["R10","47R","C23182",9,8.5,0,"T",1.6,0.8,"smt"],
+    ["R11","100R","C22775",12,12.5,0,"T",1.6,0.8,"smt"],
+    ["R12","100k","C25803",12,15.5,0,"T",1.6,0.8,"smt"],
+    ["SW1","BOOT SKQGABE010 頂按","C115351",9,32,0,"T",5.2,5.2,"smt"],
+    ["SW2","RESET SKQGABE010 頂按","C115351",9,24,0,"T",5.2,5.2,"smt"],
+    ["SW3","SHUTTER ALPS SKRTLAE010 側按（v1.4，觸桿朝上板邊）","C110293",50.6,2.7,0,"T",4.5,2.6,"smt"],
+    ["U1","ESP32-S3-WROOM-1-N16R8","C2913202",30,68.5,0,"T",18,25.5,"smt"],
+    ["U4","USBLC6-2SC6 SOT-23-6","C7519",52,34,0,"T",3.0,2.6,"smt"],
+    ["U5","XC6206P282MR 2.8V","C14255",44,5.5,0,"T",3.0,2.6,"smt"],
+    ["U6","XC6206P122MR 1.2V","C424699",44,14,0,"T",3.0,2.6,"smt"],
+    ["SW4","PWR 電源開關 MSK12C02","C431540",57.6,11,90,"T",6.7,2.8,"smt"],
+    ["R20","1k","C21190",53,8.2,0,"T",1.6,0.8,"smt"],
+    ["D5","BLUE LED 電源燈 0603","C2288",53,11.2,0,"T",1.6,0.8,"smt"],
+    ["R21","100k EN 上拉","C25803",53.2,41.7,90,"B",1.6,0.8,"smt"],
+    ["C1","22u 0805","C45783",36,52,0,"B",2.0,1.25,"smt"],
+    ["C2","1u 0603","C15849",40,52,0,"B",1.6,0.8,"smt"],
+    ["C3","22u 0805","C45783",44,52,0,"B",2.0,1.25,"smt"],
+    ["C4","1u 0603","C15849",48,52,0,"B",1.6,0.8,"smt"],
+    ["C5","10u 0805","C15850",42,66,0,"B",2.0,1.25,"smt"],
+    ["C6","100n 0603","C14663",46,66,0,"B",1.6,0.8,"smt"],
+    ["C7","1u 0603","C15849",46,62,0,"B",1.6,0.8,"smt"],
+    ["C10","10u 0805","C15850",36,32,90,"B",2.0,1.25,"smt"],
+    ["C11","100n 0603","C14663",32,36,90,"B",1.6,0.8,"smt"],
+    ["D2","RED LED 0603","C2286",53,14,0,"B",1.6,0.8,"smt"],
+    ["D3","B5819W SOD-123","C8598",53,9,0,"B",3.7,1.6,"smt"],
+    ["Q2","AO3401A SOT-23","C15127",50,39,0,"B",3.0,2.6,"smt"],
+    ["R3","2k","C22975",34,10,0,"B",1.6,0.8,"smt"],
+    ["R4","1k","C21190",38,10,0,"B",1.6,0.8,"smt"],
+    ["R5","100k","C25803",50,34,0,"B",1.6,0.8,"smt"],
+    ["R6","10k","C25804",42,62,0,"B",1.6,0.8,"smt"],
+    ["R7","10k","C25804",42,58,0,"B",1.6,0.8,"smt"],
+    ["R8","10k 快門上拉","C25804",46,58,0,"B",1.6,0.8,"smt"],
+    ["R13","4.7k","C23162",26,50,0,"B",1.6,0.8,"smt"],
+    ["R14","4.7k","C23162",30,50,0,"B",1.6,0.8,"smt"],
+    ["R15","10k","C25804",32,24,90,"B",1.6,0.8,"smt"],
+    ["R16","10k","C25804",32,28,90,"B",1.6,0.8,"smt"],
+    ["R17","10k","C25804",32,32,90,"B",1.6,0.8,"smt"],
+    ["R18","10k","C25804",36,24,90,"B",1.6,0.8,"smt"],
+    ["R19","10k","C25804",36,28,90,"B",1.6,0.8,"smt"],
+    ["U2","AP2112K-3.3 SOT-23-5","C51118",50,45,0,"B",3.0,2.6,"smt"],
+    ["U3","TP4056 ESOP-8","C16581",44,9,0,"B",6.0,5.0,"smt"],
+  ];
+  // connectors as bbox [ref, value, lcsc, x0,y0,x1,y1, side, cat]
+  const BOX = [
+    ["J1","USB-C 16P HC-TYPE-C-16P-01A","C2894897",51.3,18.7,60.5,29.3,"T","smt"],
+    ["J2","24P 0.5mm FPC 座 FH12-24S-0.5SH","C202112",20.9,3.5,39.1,11.4,"T","smt"],
+    ["J3","microSD 座 DM3AT-SF-PEJM5","C114218",-4.6,36.1,18,51.8,"B","smt"],
+    ["J4","JST PH 2.0 2P 電池座（插件）","C131337",7.5,59.8,14.5,65.3,"B","tht"],
+    ["J5","螢幕母座 1×7 2.54 mm（插件，v1.3 起）pin 1 GND 在靠天線端","C225482",54.7,36.1,57.3,53.9,"B","tht"],
+  ];
+  const HOLES = [[4,4],[56,4],[4,71],[56,71]];
+  const W = 60, H = 85, KEEPOUT_Y = 74.5;
+  const NS = "http://www.w3.org/2000/svg";
+
+  function el(tag, attrs, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function tip(node, text) { const t = el("title", {}); t.textContent = text; node.appendChild(t); }
+
+  function drawBoard(svg, mirror) {
+    const g = el("g", { class: "board-g" }, svg);
+    const mx = x => mirror ? W - x : x;
+    el("rect", { class: "board", x: 0, y: 0, width: W, height: H, rx: 1.5 }, g);
+    el("rect", { class: "keepout", x: 0.5, y: KEEPOUT_Y, width: W - 1, height: H - KEEPOUT_Y - 0.5, rx: 1 }, g);
+    const kl = el("text", { class: "board-label", x: W / 2, y: H - 3.2, "text-anchor": "middle" }, g);
+    kl.textContent = "ANTENNA KEEPOUT";
+    HOLES.forEach(([x, y]) => {
+      const h = el("circle", { class: "hole", cx: mx(x), cy: y, r: 1.1 }, g);
+      tip(h, "M2 定位孔：外殼的 M2×25 螺絲從這裡鎖穿");
+    });
+    return g;
+  }
+
+  function drawParts(svg, side, mirror) {
+    const g = el("g", {}, svg);
+    const mx = x => mirror ? W - x : x;
+    BOX.filter(b => b[7] === side).forEach(b => {
+      const [ref, val, lcsc, x0, y0, x1, y1, , cat] = b;
+      const X0 = mirror ? W - x1 : x0;
+      const r = el("rect", { class: "part " + cat, x: X0, y: y0, width: x1 - x0, height: y1 - y0, rx: 0.5 }, g);
+      tip(r, `${ref} · ${val} · ${lcsc}`);
+      const t = el("text", { class: "ref on-board", x: X0 + (x1 - x0) / 2, y: y0 + (y1 - y0) / 2 + 0.7, "text-anchor": "middle" }, g);
+      t.textContent = ref;
+    });
+    P.filter(p => p[6] === side).forEach(p => {
+      const [ref, val, lcsc, x, y, rot, , w, h, cat] = p;
+      const cx = mx(x);
+      const r = el("rect", { class: "part " + cat, x: cx - w / 2, y: y - h / 2, width: w, height: h, rx: 0.2,
+        transform: `rotate(${rot} ${cx} ${y})` }, g);
+      tip(r, `${ref} · ${val} · ${lcsc}`);
+      if (w >= 2.9) {
+        const t = el("text", { class: "ref on-board", x: cx, y: y + 0.7, "text-anchor": "middle" }, g);
+        t.textContent = ref;
+      }
+    });
+  }
+
+  function label(g, x, y, main, sub, anchor) {
+    const t = el("text", { class: "buy-label", x, y, "text-anchor": anchor || "start" }, g); t.textContent = main;
+    if (sub) { const s = el("text", { class: "buy-sub", x, y: y + 3, "text-anchor": anchor || "start" }, g); s.textContent = sub; }
+  }
+  function leader(g, pts) {
+    el("polyline", { class: "leader", points: pts.map(p => p.join(",")).join(" ") }, g);
+    el("circle", { class: "lead-dot", cx: pts[pts.length - 1][0], cy: pts[pts.length - 1][1], r: 0.7 }, g);
+  }
+  function shellLabel(g, x, y, text, anchor) {
+    const t = el("text", { class: "shell-label", x, y, "text-anchor": anchor || "start" }, g); t.textContent = text;
+  }
+
+  // ---------- TOP ----------
+  const top = document.getElementById("top");
+  drawBoard(top, false);
+  drawParts(top, "T", false);
+  (function offboardTop() {
+    const g = el("g", {}, top);
+    // camera module: ribbon leaves J2 toward the top edge, folds back 180° and the module lies on the board
+    el("path", { class: "buy-item-ghost", d: "M23 6.5 V4 a1.2 1.2 0 0 1 1.2 -1.2 H35.8 a1.2 1.2 0 0 1 1.2 1.2 V6.5" }, g);
+    el("rect", { class: "buy-item-ghost", x: 23, y: 6.5, width: 14, height: 14, rx: 0.4 }, g);
+    for (let i = 0; i < 9; i++) el("line", { x1: 24.5 + i * 1.4, y1: 7.5, x2: 24.5 + i * 1.4, y2: 19.5, stroke: "var(--buy)", "stroke-width": 0.25, opacity: 0.6 }, g);
+    el("rect", { class: "buy-item", x: 25.5, y: 20.5, width: 9, height: 9, rx: 0.6 }, g);
+    el("circle", { cx: 30, cy: 25, r: 3.2, fill: "var(--panel)", stroke: "var(--buy-ink)", "stroke-width": 0.35 }, g);
+    el("circle", { cx: 30, cy: 25, r: 1.7, fill: "var(--buy-ink)" }, g);
+    el("circle", { cx: 30.6, cy: 24.4, r: 0.45, fill: "var(--panel)" }, g);
+    label(g, 42, -22, "OV2640 相機模組", "排線從 J2 出來後反折 180°");
+    const sub2 = el("text", { class: "buy-sub", x: 42, y: -16 }, g); sub2.textContent = "模組貼回板面，鏡頭朝上，底下墊泡棉膠";
+    leader(g, [[41, -19], [36, -8], [32, 21]]);
+
+    // shutter cap through the enclosure top wall (x 47.6–53.6)
+    el("rect", { class: "shell-line", x: 47.6, y: -4.5, width: 6, height: 4.5, rx: 0.4 }, g);
+    el("rect", { fill: "var(--shell)", x: 47.8, y: -3.5, width: 5.6, height: 2.6, rx: 0.3 }, g);
+    shellLabel(g, 47.6, -6.5, "快門帽（外殼上牆）");
+    const ss = el("text", { class: "buy-sub", x: 47.6, y: -9 }, g); ss.textContent = "SW3 側按，右手食指位置";
+
+    // lens hole
+    el("circle", { class: "shell-line", cx: 30, cy: 25, r: 5 }, g);
+    shellLabel(g, 36, 31.5, "外殼鏡頭孔 Ø10");
+    // pinholes
+    el("circle", { class: "shell-line", cx: 9, cy: 24, r: 1.6 }, g);
+    el("circle", { class: "shell-line", cx: 9, cy: 32, r: 1.6 }, g);
+    shellLabel(g, -5, 29, "針孔", "start");
+
+    // USB-C cable at right of J1
+    el("rect", { class: "buy-item", x: 64, y: 21.2, width: 9, height: 5.6, rx: 1.4 }, g);
+    el("rect", { class: "buy-item", x: 73, y: 22.6, width: 22, height: 2.8, rx: 1.4 }, g);
+    label(g, 64, 17.5, "USB-C 線", "燒錄與充電 → J1");
+    leader(g, [[64, 24], [61, 24]]);
+
+    // screws
+    el("circle", { class: "buy-item", cx: 70, cy: 4, r: 2 }, g);
+    el("line", { x1: 68.6, y1: 4, x2: 71.4, y2: 4, stroke: "var(--panel)", "stroke-width": 0.5 }, g);
+    el("line", { x1: 70, y1: 2.6, x2: 70, y2: 5.4, stroke: "var(--panel)", "stroke-width": 0.5 }, g);
+    label(g, 74, 4.2, "M2 × 25 螺絲 × 4", "從外殼背面鎖穿 H1–H4");
+    leader(g, [[68, 4], [57.2, 4]]);
+
+    // enclosure hint
+    el("rect", { class: "shell-line", x: 64, y: 44, width: 30, height: 20, rx: 2 }, g);
+    shellLabel(g, 66, 52, "3D 列印外殼");
+    const eh = el("text", { class: "buy-sub", x: 66, y: 56 }, g); eh.textContent = "65 × 90 × 27.6 mm，兩片殼 + 快門帽";
+  })();
+
+  // ---------- BOTTOM (mirrored) ----------
+  const bot = document.getElementById("bottom");
+  drawBoard(bot, true);
+  drawParts(bot, "B", true);
+  (function offboardBottom() {
+    const g = el("g", {}, bot);
+    // microSD card: J3 is at x 9.2 → mirrored to 50.8, slot opens to the right edge of this view
+    el("rect", { class: "buy-item", x: 66, y: 38.5, width: 11, height: 15, rx: 0.8 }, g);
+    el("path", { d: "M66 38.5 h4 l2 2.5 h5 v-2.5 z", fill: "var(--buy-ink)" }, g);
+    for (let i = 0; i < 8; i++) el("rect", { x: 67 + i * 1.2, y: 51.3, width: 0.7, height: 1.6, fill: "var(--panel)" }, g);
+    label(g, 66, 35, "microSD 卡", "8–32GB → J3");
+    leader(g, [[66, 46], [61, 46]]);
+
+    // display module plugged into J5: KiCad x 19.3–58.5 → mirrored 1.5–40.7, y 31.1–58.9
+    el("rect", { class: "buy-item-ghost", x: 1.5, y: 31.1, width: 39.2, height: 27.8, rx: 0.6 }, g);
+    // active area 23.4 sq centred at KiCad (40.5, 45) → mirrored x 19.5
+    el("rect", { class: "shell-line", x: 19.5 - 12.25, y: 45 - 12.25, width: 24.5, height: 24.5, rx: 0.4 }, g);
+    el("rect", { fill: "var(--buy)", opacity: 0.18, x: 19.5 - 11.7, y: 45 - 11.7, width: 23.4, height: 23.4 }, g);
+    label(g, -5, 27.5, "1.3 吋 ST7789 螢幕", "直插 J5，亮面朝外");
+    shellLabel(g, -5, 63.5, "外殼螢幕窗 24.5 × 24.5");
+
+    // LiPo battery below the board
+    el("rect", { class: "buy-item", x: 32, y: 94, width: 30, height: 16, rx: 1.5 }, g);
+    el("rect", { x: 34, y: 96, width: 26, height: 12, rx: 1, fill: "none", stroke: "var(--panel)", "stroke-width": 0.35 }, g);
+    el("path", { class: "leader", d: "M48 94 v-6 q0 -2 2 -2 h-4 q2 0 2 2" }, g);
+    el("line", { x1: 46.5, y1: 88, x2: 46.5, y2: 66, stroke: "var(--buy)", "stroke-width": 0.5 }, g);
+    el("line", { x1: 49.5, y1: 88, x2: 49.5, y2: 66, stroke: "var(--buy)", "stroke-width": 0.5 }, g);
+    el("rect", { x: 45.3, y: 65.5, width: 5.4, height: 3.2, fill: "var(--panel)", stroke: "var(--buy-ink)", "stroke-width": 0.35 }, g);
+    label(g, 65, 100, "3.7V 鋰電池", "JST PH 2.0 帶保護板 → J4");
+    const s = el("text", { class: "buy-sub", x: 65, y: 106 }, g); s.textContent = "收到先量極性；電池在螢幕與板子之間";
+    const bt = el("text", { class: "buy-label", x: 47, y: 103, "text-anchor": "middle", fill: "var(--panel)" }, g); bt.textContent = "LiPo";
+  })();
+
+  // ---------- mode toggle ----------
+  const root = document.documentElement;
+  function setMode(m) {
+    root.setAttribute("data-mode", m);
+    const std = m === "standard";
+    document.getElementById("lg-tht-eco").hidden = std;
+    document.getElementById("lg-tht-std").hidden = !std;
+    document.getElementById("tht-note-eco").hidden = std;
+    document.getElementById("tht-note-std").hidden = !std;
+    document.getElementById("tht-count").textContent = std ? "Standard：JLCPCB 焊" : "Economic：自己焊";
+    try { localStorage.setItem("pcba-mode", m); } catch (e) {}
+  }
+  let saved = "economic";
+  try { saved = localStorage.getItem("pcba-mode") || "economic"; } catch (e) {}
+  const savedInput = document.getElementById("mode-" + saved);
+  if (savedInput) savedInput.checked = true; else saved = "economic";
+  setMode(saved);
+  document.querySelectorAll('input[name="mode"]').forEach(r => r.addEventListener("change", e => setMode(e.target.value)));
+
+  // ---------- lightbox for renders ----------
+  document.querySelectorAll(".gallery .shot").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const box = document.createElement("div");
+      box.className = "lightbox";
+      box.setAttribute("role", "dialog");
+      box.setAttribute("aria-label", btn.getAttribute("aria-label") || "放大圖");
+      const img = document.createElement("img");
+      img.src = btn.dataset.full;
+      img.alt = btn.querySelector("img").alt;
+      box.appendChild(img);
+      const close = () => { box.remove(); btn.focus(); document.removeEventListener("keydown", onKey); };
+      const onKey = e => { if (e.key === "Escape") close(); };
+      box.addEventListener("click", close);
+      document.addEventListener("keydown", onKey);
+      document.body.appendChild(box);
+    });
+  });
+})();
+</script>
