@@ -6,10 +6,10 @@ Run with the project's Python (pywin32) while SolidWorks is open:
 
 Board frame B (right-handed, what the assembly uses):
     X_b = KiCad x, Y_b = -KiCad y, Z_b = 0 at the board TOP face (component side with the lens),
-    board bottom at Z_b = -1.6. Front shell above (Z_b 0..9), back shell below (Z_b -18.6..0).
+    board bottom at Z_b = -1.6. Front shell above (Z_b 0..9), back shell below (Z_b -31.1..0).
 Each part is modelled in its own local frame so every feature is a +Z extrusion or a cut from the
 Front plane (sketch u,v = X,Y) or the Right plane (sketch u,v = -Z, Y); the assembly places them:
-    back shell : local = (X_b, Y_b, Z_b + 18.6)            -> translate (0, 0, -18.6)
+    back shell : local = (X_b, Y_b, Z_b + 31.1)            -> translate (0, 0, -31.1)
     front shell: local = (X_b, KiCad y, 9 - Z_b)           -> rotate 180 deg about X, translate (0, 0, +9)
     shutter cap: flange inner face at local Y 0, axis +Y   -> rotate 180 deg about Z, translate (50.6, -0.56, 1.75)
 All API lengths are metres.
@@ -35,15 +35,18 @@ EDGE_FILLET = 2.5                     # round-over of the front face and the bac
 LENS_BEZEL = dict(od=16.0, h=1.5)     # raised ring around the lens hole (inner diameter = lens hole)
 GRIP = dict(x0=3.5, x1=15.5, ys=(50, 54, 58, 62, 66, 70), w=1.0, depth=0.6)   # grooves on the lens face, left strip
 SCREEN_FRAME = dict(w=28.5, h=28.5, depth=0.8)   # shallow recessed frame around the display window
-FRONT_CAV = 7.0                       # clearance above board top (camera module + lens shoulder)
+FRONT_CAV = 8.0                       # clearance above board top: camera lens holder tops out 6.9 above the board (foam 2.3 + PCB 1 + holder 3.5)
 FRONT_PLATE = 2.0
 FRONT_H = FRONT_CAV + FRONT_PLATE     # 9.0: front shell spans Z_b 0..9
-BACK_CAV = 14.5                       # below board bottom: socket 8.5 + module header 2.54 + PCB 1.2 + LCD 1.6 + 0.6 gap
+# below board bottom: J5 socket 8.5 + male Dupont housing 14.0 standing in it + 3.5 for the wire to loop out of the
+# housing end + 1.0 spare. The display module hangs at the depth this leaves (see DISPLAY_MODULE).
+DUPONT = dict(housing=14.0, w=2.54, wire_od=1.4, loop=3.5)
+BACK_CAV = 8.5 + DUPONT["housing"] + DUPONT["loop"] + 1.0     # 27.0
 BACK_FLOOR = 2.5
-BACK_H = BT + BACK_CAV + BACK_FLOOR   # 18.6: back shell spans Z_b -18.6..0
+BACK_H = BT + BACK_CAV + BACK_FLOOR   # 31.1: back shell spans Z_b -31.1..0
 LIP = 1.0                             # back-shell lip height / front-shell recess
 HOLES = [(4, 4), (56, 4), (4, 71), (56, 71)]     # KiCad coords of H1..H4 (2.2 mm holes)
-POST_D, POST_PILOT, POST_PILOT_DEPTH = 4.6, 1.6, 6.0   # front posts (M2 self-tap)
+POST_D, POST_PILOT, POST_PILOT_DEPTH = 4.6, 1.6, 7.0   # front posts (M2 self-tap; M2 x 35 screws reach 5.4 mm in)
 STANDOFF_D, SCREW_CLR, HEAD_D, HEAD_DEPTH = 5.0, 2.4, 4.2, 1.5
 PINHOLES = [(9, 24), (9, 32)]                    # SW2 RESET, SW1 BOOT: top-actuated SKQG, poked through 2 mm holes
 PINHOLE_D = 2.0
@@ -57,12 +60,21 @@ LED_HOLE_D = 1.5
 LED_BOTTOM = (53, 14, 2.0)                       # D2 red charge LED (bottom side)
 USB = dict(y0=18.75, y1=29.25, zb0=0.0, zb1=4.2)          # right wall, KiCad y range, Z_b range
 SW4 = dict(y0=7.0, y1=15.0, zb0=0.0, zb1=4.5, pocket_y0=5.0, pocket_y1=17.0, pocket_zb0=0.0, pocket_zb1=6.0, pocket_depth=1.0)
-SD = dict(y0=37.5, y1=50.5, zb0=-4.8, zb1=-2.0)            # left wall slot for the microSD card
-DISPLAY_WIN = dict(cx=40.5, cy=45.0, w=24.5, h=24.5)       # KiCad coords of the active-area centre
-# 1.3" ST7789 module plugged into J5 (KiCad coords): PCB 27.78 x 39.22 turned 90 deg, four O2.0 holes 2.5 mm from
-# its edges (lcdwiki drawing, GMT130 / ZJY133T). Its PCB back face sits socket 8.5 + header plastic 2.54 below the board.
-DISPLAY_MODULE = dict(x0=19.3, x1=58.5, y0=31.1, y1=58.9, hole_inset=2.5, hole_d=2.0, back_zb=-(BT + 8.5 + 2.54))
-PEG = dict(post_d=4.0, peg_d=1.8, peg_h=1.5)     # posts from the back-shell floor up to the module back, pegs into its holes
+SD = dict(y0=37.5, y1=50.5, zb0=-4.8, zb1=-1.6)            # left wall slot for the microSD card (card top ~2.0 below the board top)
+DISPLAY_WIN = dict(cx=28.4, cy=45.0, w=24.5, h=24.5)       # KiCad coords of the active-area centre (module centre 30 - 1.58: the active area sits toward the header row)
+# 1.3" ST7789 module (KiCad coords): PCB 27.78 x 39.22 turned 90 deg, four O2.0 holes 2.5 mm from its edges (lcdwiki
+# drawing, GMT130 / ZJY133T). 2026-09-23: the module is connected to J5 with seven male-female Dupont jumpers instead of
+# being plugged in. It is centred on x = 30 with its 7-pin header row on the LEFT (x 12.9), away from J5, and screwed
+# to four posts on the back-shell floor with M2 x 4. Its glass ends 0.6 below the floor's inner face (0.5 mm foam).
+DISPLAY_MODULE = dict(x0=10.4, x1=49.6, y0=31.1, y1=58.9, hole_inset=2.5, hole_d=2.0,
+                      back_zb=-(BT + BACK_CAV - 0.6 - 2.8), pcb_t=1.2, stack=2.8)      # back face at Z_b -25.2
+# back_zb = the module PCB face toward the board (header side); its far face is back_zb - pcb_t, where the posts stop
+MODULE_SCREW = dict(post_d=4.5, pilot_d=1.6, pilot_depth=4.0)   # posts from the floor to the module far face, M2 self-tap
+# Dupont path (KiCad coords, z = depth below the board top): female housings on the module header (x 12.9 row) rise from
+# 22.66 to 8.66; wires S-bend above them, run under the battery at z 10.3-11.7 to x 51, drop beside the module's right
+# edge to z 27.6, run right and loop up into the male housings that stand in J5 (z 10.1-24.1).
+J5_PLUG = dict(x=56.0, y0=37.38, pitch=2.54, n=7)
+WIRE = dict(run_z=10.3, drop_x=51.0, bottom_z=27.6)
 
 # ------------------------------------------------------------------ SolidWorks plumbing
 S = gencache.EnsureModule('{83A33D31-27C5-11CE-BFD4-00400513BB57}', 0, 32, 0)
@@ -161,7 +173,7 @@ class Part:
         self.log.append((label, round(-dv, 1)))
         return f
 
-    def save(self, stl=True, png_view="*Isometric"):
+    def save(self, stl=True, png_view="*Isometric"):  # noqa
         path = os.path.join(OUT, self.name + ".SLDPRT")
         if os.path.exists(path):
             os.remove(path)
@@ -234,7 +246,7 @@ def build_front():
     return p
 
 
-# ------------------------------------------------------------------ BACK SHELL (local: X, Y_b = -y_kicad, Z_l = Z_b + 18.6)
+# ------------------------------------------------------------------ BACK SHELL (local: X, Y_b = -y_kicad, Z_l = Z_b + 31.1)
 def build_back():
     p = Part("esp32s3-camera-shell-back")
     zl = lambda zb: zb + BACK_H
@@ -264,17 +276,18 @@ def build_back():
     p.begin(FRONT)
     for x, y in HOLES: p.circle(x, Y(y), HEAD_D)
     p.end(); p.cut("screw head recesses", through=False, depth=HEAD_DEPTH)
-    # 5b four locating posts for the display module: Ø4 up to the module's PCB back face, Ø1.8 pegs into its holes
-    dm, pg = DISPLAY_MODULE, PEG
+    # 5b four screw posts for the display module: Ø4.5 up to the module's far PCB face, Ø1.6 pilot holes for M2 x 4
+    dm, ms = DISPLAY_MODULE, MODULE_SCREW
     holes = [(x, y) for x in (dm["x0"] + dm["hole_inset"], dm["x1"] - dm["hole_inset"])
                     for y in (dm["y0"] + dm["hole_inset"], dm["y1"] - dm["hole_inset"])]
     p.begin(FRONT)
-    for x, y in holes: p.circle(x, Y(y), pg["post_d"])
-    p.end(); p.extrude(zl(dm["back_zb"]), "display posts")
+    for x, y in holes: p.circle(x, Y(y), ms["post_d"])
+    far = dm["back_zb"] - dm["pcb_t"]                     # -26.4: the module PCB face that looks at the floor
+    p.end(); p.extrude(zl(far), "display posts")
     p.begin(FRONT)
-    for x, y in holes: p.circle(x, Y(y), pg["peg_d"])
-    p.end(); p.extrude(zl(dm["back_zb"]) + pg["peg_h"], "display pegs")
-    print("  display posts at", holes, "top Z_b %.2f, pegs to Z_b %.2f" % (dm["back_zb"], dm["back_zb"] + pg["peg_h"]))
+    for x, y in holes: p.circle(x, Y(y), ms["pilot_d"])
+    p.end(); p.cut("display post pilot holes M2", through=False, depth=ms["pilot_depth"], start=zl(far), positive=False)
+    print("  display posts at", holes, "top Z_b %.2f, pilot to Z_b %.2f" % (far, far + ms["pilot_depth"]))
     # 6 recessed screen frame (after the posts, so they cannot refill it), display window and charge LED hole
     d, sf = DISPLAY_WIN, SCREEN_FRAME
     p.begin(FRONT); p.rect(d["cx"] - sf["w"] / 2, Y(d["cy"]) - sf["h"] / 2, d["cx"] + sf["w"] / 2, Y(d["cy"]) + sf["h"] / 2); p.end()
@@ -308,6 +321,132 @@ def build_cap():
     p.begin(FRONT); p.rect(-sh["head_w"] / 2, -sh["head_h"] / 2, sh["head_w"] / 2, sh["head_h"] / 2); p.end()
     p.extrude(gap + WALL + sh["proud"], "head")                  # flange face -> outside of the wall + proud
     p.save()
+    return p
+
+
+# ------------------------------------------------------------------ OFF-BOARD PARTS (simplified, for fit checks)
+def cyl(p, x, y, d, z0, z1, label):
+    """cylinder along +Z between local z0 < z1 (Front-plane sketch at z0 via start offset)."""
+    p.begin(FRONT); p.circle(x, y, d); p.end()
+    f = p.fm.FeatureExtrusion3(True, False, False, 0, 0, (z1 - z0) * M, 0.0, False, False, False, False, 0, 0,
+                                False, False, False, False, True, True, True, 3 if z0 else 0, z0 * M, False)
+    assert f is not None, label
+    W(f, 'IFeature').Name = label; p.log.append((label, round(p.volume(), 1)))
+
+
+def box(p, x0, y0, x1, y1, z0, z1, label):
+    p.begin(FRONT); p.rect(x0, y0, x1, y1); p.end()
+    f = p.fm.FeatureExtrusion3(True, False, False, 0, 0, (z1 - z0) * M, 0.0, False, False, False, False, 0, 0,
+                                False, False, False, False, True, True, True, 3 if z0 else 0, z0 * M, False)
+    assert f is not None, label
+    W(f, 'IFeature').Name = label; p.log.append((label, round(p.volume(), 1)))
+
+
+def build_offboard_top():
+    """Camera module + folded ribbon, in the board frame (local x = X_b, local y = -y_k, z = Z_b >= 0).
+    Numbers from render/illustration/gen_camera_wrl.py: foam 8x8 to z 2.3, PCB 9x9 z 2.4-3.4, lens holder
+    8.5x8.5 z 3.4-6.9, barrel Ø6.5 to 8.7, ring Ø6.9 to 9.0, glass to 9.2; ribbon 14 wide, fold at y_k 3.3-4.0,
+    return run at z 2.3-2.5 from y_k 4.0 to the module edge 20.5."""
+    p = Part("offboard-camera-module")
+    Y = lambda yk: -yk
+    cx, cy = LENS[0], LENS[1]
+    box(p, cx - 4.0, Y(cy + 4.0), cx + 4.0, Y(cy - 4.0), 0.0, 2.3, "foam pad")
+    box(p, cx - 4.5, Y(cy + 4.5), cx + 4.5, Y(cy - 4.5), 2.3, 3.4, "sensor PCB")
+    box(p, cx - 4.25, Y(cy + 4.25), cx + 4.25, Y(cy - 4.25), 3.4, 6.9, "lens holder")
+    cyl(p, cx, Y(cy), 6.5, 6.9, 8.7, "lens barrel"); cyl(p, cx, Y(cy), 6.9, 8.7, 9.0, "lens ring"); cyl(p, cx, Y(cy), 3.4, 9.0, 9.2, "lens glass")
+    p.save(stl=False)
+    return p
+
+
+def build_ribbon():
+    """The 24P camera FPC as its own part: a 0.3 mm thick, 14 mm wide strip that leaves J2 at z 1.0,
+    U-turns toward the board edge (fold radius 0.7 at y_k 4.0, outermost point y_k 3.15) and runs back at
+    z 2.4 to the module edge at y_k 20.5. Profile in the Right plane (u = -Z, v = Y_b), extruded +-7 mm in X;
+    placed at X = 30 in the assembly."""
+    p = Part("offboard-ribbon")
+    t, r, zc, yf = 0.3, 0.7, 1.7, -4.0            # thickness, fold radius, fold axis Z, fold axis Y_b
+    ro, ri = r + t / 2, r - t / 2
+    A = p.sk.CreateArc; L = p.sk.CreateLine
+    p.begin(RIGHT)
+    # sketch coords: (u, v) = (-Z, Y_b); arc centre (-zc, yf); arcs bulge toward +Y_b (the board edge)
+    A(-zc * M, yf * M, 0, -(zc - ro) * M, yf * M, 0, -(zc + ro) * M, yf * M, 0, 1)        # outer arc, bottom -> top (bulges to +Y_b)
+    L(-(zc + ro) * M, yf * M, 0, -(zc + ro) * M, -20.5 * M, 0)                             # top leg, outer face
+    L(-(zc + ro) * M, -20.5 * M, 0, -(zc + ri) * M, -20.5 * M, 0)                          # end cap
+    L(-(zc + ri) * M, -20.5 * M, 0, -(zc + ri) * M, yf * M, 0)                             # top leg, inner face
+    A(-zc * M, yf * M, 0, -(zc + ri) * M, yf * M, 0, -(zc - ri) * M, yf * M, 0, -1)        # inner arc, top -> bottom
+    L(-(zc - ri) * M, yf * M, 0, -(zc - ro) * M, yf * M, 0)                                # radial cap at the connector mouth
+    p.end()
+    f = p.fm.FeatureExtrusion3(False, False, False, 0, 0, 7.0 * M, 7.0 * M, False, False, False, False, 0, 0,
+                                False, False, False, False, True, True, True, 0, 0, False)
+    assert f is not None, "ribbon extrude failed"
+    p.log.append(("ribbon", round(p.volume(), 1)))
+    p.save(stl=False)
+    return p
+
+
+def build_offboard_bottom():
+    """Battery + foam + JST leads + microSD card, local y = y_k, local z = depth below the board top
+    (placed with a 180-degree flip about X). Battery 603040 at (34, 44): foam z 1.6-3.6, pouch 3.6-9.6;
+    leads 2.5 x 1.5 from the protection-board end to the JST plug under J4; card 15 x 11 x 1 at (3.5, 44)."""
+    p = Part("offboard-battery-card")
+    # (foam pad omitted: it is compliant and wraps the 1.3 mm parts under the battery; the pouch starts at 3.6)
+    box(p, 34 - 15, 44 - 20, 34 + 15, 44 + 20, 3.6, 9.6, "battery pouch")
+    box(p, 12.0, 65.0, 34.0, 67.5, 8.5, 10.0, "battery leads")
+    box(p, 9.5, 59.5, 14.5, 65.5, 7.6, 9.6, "JST plug wire exit below J4")        # the plug body itself sits inside J4
+    box(p, -4.0, 38.5, 0.28, 49.5, 2.0, 3.0, "microSD card, part outside the connector")
+    p.save(stl=False)
+    return p
+
+
+def build_display_module():
+    """1.3in ST7789 module on Dupont jumpers: local y = y_k, z = depth below the board top (flip about X).
+    PCB back (header side) at 25.2, glass to 28.0; its straight 7-pin header plastic sits on the back at the left
+    row (x 12.9), the pins (inside the female housings) are omitted; M2 x 4 heads at the four corner holes."""
+    p = Part("offboard-display-module")
+    dm = DISPLAY_MODULE; x0, x1, y0, y1 = dm["x0"], dm["x1"], dm["y0"], dm["y1"]
+    zb = -dm["back_zb"]                                      # 25.2
+    box(p, x0, y0, x1, y1, zb, zb + 1.2, "module PCB")
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    box(p, cx - 29.22 / 2, cy - 25.8 / 2, cx + 29.22 / 2, cy + 25.8 / 2, zb + 1.2, zb + 2.2, "backlight frame")
+    box(p, cx - 29.22 / 2, cy - 25.8 / 2, cx + 29.22 / 2, cy + 25.8 / 2, zb + 2.2, zb + 2.8, "glass")
+    hx = x0 + dm["hole_inset"]                               # 12.9: header row shares the x of the left holes
+    box(p, hx - 1.27, 45.0 - 8.89, hx + 1.27, 45.0 + 8.89, zb - 2.54, zb, "7-pin header plastic on the module back")
+    p.begin(FRONT)
+    for x in (x0 + dm["hole_inset"], x1 - dm["hole_inset"]):
+        for y in (y0 + dm["hole_inset"], y1 - dm["hole_inset"]): p.circle(x, y, dm["hole_d"])
+    p.end(); p.cut("corner holes")
+    for x in (x0 + dm["hole_inset"], x1 - dm["hole_inset"]):
+        for y in (y0 + dm["hole_inset"], y1 - dm["hole_inset"]): cyl(p, x, y, 3.8, zb - 1.3, zb, "M2 screw head")
+    p.save(stl=False)
+    return p
+
+
+def build_display_cable():
+    """Seven male-female Dupont jumpers between J5 and the display header, as one part (flip about X like the
+    other bottom-side parts; local y = y_k, z = depth below the board top). Housings 2.54 x 2.54 x 14:
+    male block standing in J5 (z 10.1-24.1), female block on the module header (z 8.66-22.66). The wires are
+    one flat block 7 x 2.54 wide and O1.4 thick: S-bend above the female housings (z 5.0-8.66, x 12.2-16.5),
+    run under the battery at z 10.3-11.7 to x 51, drop beside the module's right edge (49.6) to z 27.6, run
+    right under the male housings and loop up into their ends."""
+    p = Part("offboard-display-cable")
+    d, pl, w = DUPONT, J5_PLUG, WIRE
+    ymid = pl["y0"] + (pl["n"] - 1) * pl["pitch"] / 2                      # 45.0
+    yh0, yh1 = ymid - pl["n"] * pl["pitch"] / 2, ymid + pl["n"] * pl["pitch"] / 2     # housing block 36.11 .. 53.89
+    yw0, yw1 = pl["y0"] - d["wire_od"] / 2, pl["y0"] + (pl["n"] - 1) * pl["pitch"] + d["wire_od"] / 2
+    sock_top = BT + 8.5                                                    # 10.1
+    box(p, pl["x"] - d["w"] / 2, yh0, pl["x"] + d["w"] / 2, yh1, sock_top, sock_top + d["housing"], "male housings in J5")
+    dm = DISPLAY_MODULE; hx = dm["x0"] + dm["hole_inset"]                  # 12.9: module header row
+    zf1 = -dm["back_zb"] - 2.54                                            # 22.66: female housings meet the header plastic
+    zf0 = zf1 - d["housing"]                                               # 8.66
+    box(p, hx - d["w"] / 2, yh0, hx + d["w"] / 2, yh1, zf0, zf1, "female housings on the module header")
+    od = d["wire_od"]
+    box(p, hx - 0.7, yw0, 16.5, yw1, zf0 - 3.66, zf0, "S-bend above the female housings")
+    box(p, 16.5 - od, yw0, 16.5, yw1, zf0 - 3.66, w["run_z"] + od, "S-bend down leg")
+    box(p, 16.5 - od, yw0, w["drop_x"] + od / 2, yw1, w["run_z"], w["run_z"] + od, "run under the battery")
+    box(p, w["drop_x"] - od / 2, yw0, w["drop_x"] + od / 2, yw1, w["run_z"], w["bottom_z"], "drop beside the module edge")
+    box(p, w["drop_x"] - od / 2, yw0, pl["x"] + 2.0, yw1, w["bottom_z"] - od, w["bottom_z"], "run under the male housings")
+    box(p, pl["x"] - 2.0, yw0, pl["x"] + 2.0, yw1, sock_top + d["housing"], w["bottom_z"], "loop into the male housings")
+    p.save(stl=False)
     return p
 
 
@@ -369,7 +508,7 @@ def check_interference(asm, comps):
 
 
 # ------------------------------------------------------------------ ASSEMBLY
-def build_assembly(front, back, cap, board_path, pcb_box):
+def build_assembly(front, back, cap, board_path, pcb_box, offboard=None):
     asm_m = W(sw.NewDocument(TPL_ASM, 0, 0, 0), 'IModelDoc2')
     asm = W(asm_m, 'IAssemblyDoc'); ext = W(asm_m.Extension, 'IModelDocExtension')
     mu = W(sw.GetMathUtility(), 'IMathUtility')
@@ -396,6 +535,12 @@ def build_assembly(front, back, cap, board_path, pcb_box):
         return c
     # board: STEP has X = KiCad x, Y = -KiCad y; shift so its top face is Z_b = 0
     add(board_path, I, (0, 0, -pcb_box[5]), "board")
+    if offboard:
+        add(offboard[0].path, I, (0, 0, 0), "camera-module")
+        add(offboard[1].path, RX180, (0, 0, 0), "battery-card")
+        add(offboard[2].path, RX180, (0, 0, 0), "display-module")
+        add(offboard[3].path, I, (LENS[0], 0, 0), "ribbon")
+        add(offboard[4].path, RX180, (0, 0, 0), "display-cable")
     add(back.path, I, (0, 0, -BACK_H), "back")
     add(front.path, RX180, (0, 0, FRONT_H), "front")
     # cap: local x -> X, local z -> +Y_b (outward: the top board edge y_k = 0 is Y_b = 0 and the wall lies at
@@ -466,7 +611,10 @@ if __name__ == "__main__":
         print("back shell"); back = build_back(); [print("  ", *l) for l in back.log]
         print("button cap"); cap = build_cap(); [print("  ", *l) for l in cap.log]
         for p in (front, back, cap): p.close()
+    print("off-board parts"); offboard = (build_offboard_top(), build_offboard_bottom(), build_display_module(), build_ribbon(),
+                                          build_display_cable())
+    for p in offboard: p.close()
     print("board"); board_path, pcb_box = import_board()
-    print("assembly"); apath = build_assembly(front, back, cap, board_path, pcb_box)
+    print("assembly"); apath = build_assembly(front, back, cap, board_path, pcb_box, offboard)
     print("done in %.0f s ->" % (time.time() - t0), apath)
     print(sorted(os.listdir(OUT)))

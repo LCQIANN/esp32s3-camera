@@ -21,3 +21,6 @@ Desktop.ini
 # SolidWorks 開檔時的鎖定檔
 ~$*.SLDPRT
 ~$*.SLDASM
+
+# Python
+__pycache__/

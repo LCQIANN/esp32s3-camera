@@ -235,7 +235,7 @@
     <p class="lede">依實際 PCB 座標繪製。滑到零件上可看料號。切換組裝方案會改變兩顆插件的歸屬。</p>
     <div class="version-note">
       <b>本頁對應電路板 v1.4</b>（2026-09-22 定稿，快照存在專案 <code>versions/v1.4/</code>，含 Gerber、BOM、CPL、ERC/DRC 報告，視為唯讀；v1.2、v1.3 都沒有下單）。
-      版本沿革：<span>v1.0</span> 最初佈局 → <span>v1.1</span> 相機腳位改 ESP32-CAM 標準、加相機 LDO、填 LCSC 料號 → <span>v1.2</span> 加電源開關 SW4、EN 上拉 R21、藍色電源燈 D5、ON/OFF 絲印 → <span>v1.3</span> J5/J6 兩條排針換成 1×7 螢幕母座 J5，1.3 吋螢幕直插 → <span>v1.4</span> 快門 SW3 換成側按式 ALPS SKRTLAE010 移到上板邊右段，右手食指的位置。
+      版本沿革：<span>v1.0</span> 最初佈局 → <span>v1.1</span> 相機腳位改 ESP32-CAM 標準、加相機 LDO、填 LCSC 料號 → <span>v1.2</span> 加電源開關 SW4、EN 上拉 R21、藍色電源燈 D5、ON/OFF 絲印 → <span>v1.3</span> J5/J6 兩條排針換成 1×7 螢幕母座 J5，1.3 吋螢幕直插（2026-09-23 改為杜邦線接，板子不變）→ <span>v1.4</span> 快門 SW3 換成側按式 ALPS SKRTLAE010 移到上板邊右段，右手食指的位置。
       外殼是相機式兩片殼，鏡頭在正面、螢幕在背面、快門在頂邊，見頁面下方。
     </div>
   </header>
@@ -300,14 +300,15 @@
     </div>
 
     <div class="card buy-card">
-      <h3><i class="sw buy"></i>板外零件，自己買 <span class="count">7 項</span></h3>
+      <h3><i class="sw buy"></i>板外零件，自己買 <span class="count">8 項</span></h3>
       <ul>
         <li>OV2640 相機模組，24pin 0.5 mm 排線，ESP32-CAM 相容 → 插 J2</li>
-        <li>1.3 吋 IPS 240×240 ST7789 螢幕，7 pin 直排針已焊 → 直插 J5，不用線</li>
+        <li>1.3 吋 IPS 240×240 ST7789 螢幕，7 pin 直排針已焊 → 七條公–母杜邦線接 J5（2026-09-23 起）</li>
+        <li>公–母杜邦線 10 cm × 7 條 → 公頭插 J5、母頭套螢幕排針</li>
         <li>3.7V 鋰電池，JST PH 2.0 插頭，帶保護板 → 插 J4</li>
         <li>microSD 卡 8–32GB → 插 J3</li>
         <li>USB-C 線 → 插 J1</li>
-        <li>M2 × 25 盤頭螺絲 4 支 → 從外殼背面鎖穿 H1–H4</li>
+        <li>M2 × 35 盤頭螺絲 4 支 → 從外殼背面鎖穿 H1–H4；M2 × 4 盤頭 4 支 → 螢幕鎖在後殼矮柱上</li>
         <li>3D 列印外殼三件：前殼、後殼、快門帽（STL 在專案 <code>enclosure/</code>）</li>
       </ul>
       <p class="note">相機排線容易折壞，建議多買一條備用。電池插頭極性沒有統一規範，收到先量。螢幕插上前先對一次模組上的 GND 字有沒有對到板上 GND 那格。</p>
@@ -318,7 +319,7 @@
 
   <section class="section-head" id="assembled">
     <h2>組裝完成示意</h2>
-    <p>板子焊好、相機排線插進 J2 後反折 180° 讓模組貼回板面、microSD 卡插進 J3、鋰電池墊在底面、1.3 吋預覽螢幕直接插在底面的 J5 母座上朝外的樣子。模組落在按鍵那一欄與 U4 之間的空區，鏡頭朝上，底下墊一塊約 2 mm 厚的雙面泡棉膠。相機模組、記憶卡、電池、螢幕是依實際尺寸畫的簡化模型（相機模組 9 × 9 mm 感光板加 8.5 mm 鏡座與 21 mm 排線，電池 30 × 40 × 6 mm，螢幕 27.78 × 39.22 mm），側按快門 SW3 是依 ALPS 圖面做的簡化模型，其餘全部是 KiCad 庫的原廠 3D 模型。點圖可放大。</p>
+    <p>板子焊好、相機排線插進 J2 後反折 180° 讓模組貼回板面、microSD 卡插進 J3、鋰電池墊在底面、1.3 吋預覽螢幕在底面朝外的樣子（渲染為 v1.3 的直插版；2026-09-23 起改用七條公–母杜邦線接 J5，模組移到中央並鎖在外殼上，見外殼一節）。模組落在按鍵那一欄與 U4 之間的空區，鏡頭朝上，底下墊一塊約 2 mm 厚的雙面泡棉膠。相機模組、記憶卡、電池、螢幕是依實際尺寸畫的簡化模型（相機模組 9 × 9 mm 感光板加 8.5 mm 鏡座與 21 mm 排線，電池 30 × 40 × 6 mm，螢幕 27.78 × 39.22 mm），側按快門 SW3 是依 ALPS 圖面做的簡化模型，其餘全部是 KiCad 庫的原廠 3D 模型。點圖可放大。</p>
   </section>
   <div class="gallery">
     <figure>
@@ -331,19 +332,19 @@
     </figure>
     <figure>
       <button class="shot" type="button" data-full="render/assembled-iso-right.png" aria-label="放大組裝完成右側視角"><img src="render/assembled-iso-right.png" alt="從右側看組裝完成的板子：螢幕模組插在 J5 母座上，蓋在電池上方" loading="lazy"></button>
-      <figcaption><b>組裝完成，從開關那一側看</b><span>螢幕模組的 7 pin 直排針插進 J5 母座，身體蓋在電池上方；模組背面離板底 11.0 mm，亮面約 13.9 mm</span></figcaption>
+      <figcaption><b>組裝完成，從開關那一側看</b><span>螢幕模組的 7 pin 直排針插進 J5 母座，身體蓋在電池上方；模組背面離板底 11.0 mm，亮面約 13.9 mm（圖為直插版；2026-09-23 起改用杜邦線，模組移到中央、深度見外殼一節）</span></figcaption>
     </figure>
     <figure>
       <button class="shot" type="button" data-full="render/assembled-iso-bottom.png" aria-label="放大組裝完成底面立體圖"><img src="render/assembled-iso-bottom.png" alt="組裝完成的底面立體圖：螢幕模組插在 J5 上，鋰電池墊在底面，microSD 卡插在 J3" loading="lazy"></button>
-      <figcaption><b>組裝完成，底面（螢幕面）</b><span>603040 鋰電池（30 × 40 × 6 mm）墊 2 mm 泡棉貼在底面中央 (34, 44)；1.3 吋 IPS ST7789 螢幕轉 90° 讓 7 pin 排針邊對準右板邊的 J5 母座直插，亮面朝外；microSD 卡插在 J3</span></figcaption>
+      <figcaption><b>組裝完成，底面（螢幕面）</b><span>603040 鋰電池（30 × 40 × 6 mm）墊 2 mm 泡棉貼在底面中央 (34, 44)；1.3 吋 IPS ST7789 螢幕轉 90° 讓 7 pin 排針邊對準右板邊的 J5 母座直插，亮面朝外；microSD 卡插在 J3（圖為直插版；現改用杜邦線）</span></figcaption>
     </figure>
     <figure class="tall">
       <button class="shot" type="button" data-full="render/assembled-bottom.png" aria-label="放大組裝完成底面正視圖"><img src="render/assembled-bottom.png" alt="組裝完成的底面正視圖：1.3 吋預覽螢幕插在 J5 母座上朝外，旁邊是 microSD 座與電池座" loading="lazy"></button>
-      <figcaption><b>組裝完成，底面正視（含螢幕）</b><span>從底面看，這一面就是使用者看的那一面：螢幕亮面朝外，鏡頭在反面。模組投影 x 19.3–58.5、y 31.1–58.9，四角 Ø2 孔在 (21.8, 33.6)、(56, 33.6)、(21.8, 56.4)、(56, 56.4) 套進外殼的定位柱；有效顯示區 23.4 × 23.4 中心約 (40.5, 45)，外殼螢幕窗對這裡。母座腳序就是模組腳序：GND、3V3、SCL (GPIO44)、SDA (GPIO43)、RES (GPIO6)、DC (GPIO5)、BLK (GPIO4)</span></figcaption>
+      <figcaption><b>組裝完成，底面正視（含螢幕）</b><span>從底面看，這一面就是使用者看的那一面：螢幕亮面朝外，鏡頭在反面。模組投影 x 19.3–58.5、y 31.1–58.9，四角 Ø2 孔在 (21.8, 33.6)、(56, 33.6)、(21.8, 56.4)、(56, 56.4)；有效顯示區 23.4 × 23.4 中心約 (40.5, 45)。杜邦線版模組移到 x 10.4–49.6、排針朝左，四角孔 (12.9, 33.6)、(47.1, 33.6)、(12.9, 56.4)、(47.1, 56.4) 用 M2×4 鎖在外殼矮柱上，顯示區中心 (28.4, 45)，外殼螢幕窗對這裡。母座腳序就是模組腳序：GND、3V3、SCL (GPIO44)、SDA (GPIO43)、RES (GPIO6)、DC (GPIO5)、BLK (GPIO4)</span></figcaption>
     </figure>
     <figure>
       <button class="shot" type="button" data-full="render/assembled-bottom-low.png" aria-label="放大底面低角度圖"><img src="render/assembled-bottom-low.png" alt="底面低角度視角：螢幕模組浮在電池上方，中間是母座" loading="lazy"></button>
-      <figcaption><b>底面低角度，看高度</b><span>電池加泡棉 8 mm；母座 8.5 mm 加模組自帶排針塑膠 2.54 mm，模組 PCB 背面在 11.0 mm，還有 3 mm 餘裕；亮面約 13.9 mm，外殼底側內深 14.5 mm 就是照這個定的</span></figcaption>
+      <figcaption><b>底面低角度，看高度</b><span>電池加泡棉 8 mm；母座 8.5 mm 加模組自帶排針塑膠 2.54 mm，模組 PCB 背面在 11.0 mm，還有 3 mm 餘裕；亮面約 13.9 mm（直插版）。杜邦線版：J5 上的公頭膠殼到板底下 22.5 mm，外殼底側內深 27 mm，模組亮面 26.4 mm</span></figcaption>
     </figure>
     <figure>
       <button class="shot" type="button" data-full="render/closeup-camera-module.png" aria-label="放大 OV2640 相機模組特寫"><img src="render/closeup-camera-module.png" alt="OV2640 相機模組特寫：黑色鏡座、圓形鏡筒與銀色壓環、藍色鏡片，下方是橘色排線" loading="lazy"></button>
@@ -357,12 +358,12 @@
 
   <section class="section-head" id="enclosure">
     <h2>3D 列印外殼</h2>
-    <p>相機式兩片殼，SolidWorks 2024 依板檔座標用腳本建模，組合件放進了板子的 STEP 並做過干涉檢查。前殼是鏡頭面：Ø10 鏡頭孔加一圈 Ø16 凸起 1.5 mm 的鏡座環、上牆的快門帽、BOOT/RESET 兩個 Ø2 針孔、三個 LED 導光孔、左側六道握持溝紋、右側牆的 USB-C 窗與電源開關槽。後殼是螢幕面：24.5 × 24.5 螢幕窗、左側牆記憶卡槽、四支 Ø5 板子立柱，另有四支 Ø4 螢幕定位柱，頂端 Ø1.8 凸柱插進螢幕模組四角的 Ø2 孔，模組不靠母座懸著。兩面外緣整圈 R2.5 倒圓、直角 R4.5，螢幕窗外有一層 0.8 mm 內縮的邊框。整組 65 × 90 × 27.6 mm，壁厚 2 mm，四支 M2×25 從背面鎖穿。STL、SLDPRT 與尺寸依據表在專案 <code>enclosure/</code>。點圖可放大。</p>
+    <p>相機式兩片殼，SolidWorks 2024 依板檔座標用腳本建模，組合件放進了板子的 STEP，加上相機模組（含排線反折）、電池與電池線、記憶卡、螢幕模組、七條杜邦線的簡化模型，干涉檢查 0 件。前殼是鏡頭面：Ø10 鏡頭孔加一圈 Ø16 凸起 1.5 mm 的鏡座環、上牆的快門帽、BOOT/RESET 兩個 Ø2 針孔、三個 LED 導光孔、左側六道握持溝紋、右側牆的 USB-C 窗與電源開關槽。後殼是螢幕面：24.5 × 24.5 螢幕窗、左側牆記憶卡槽、四支 Ø5 板子立柱，另有四支 Ø4.5 矮柱，螢幕模組四角用 M2×4 鎖在上面；模組不插母座，改用七條公–母杜邦線接 J5（2026-09-23 決定，省事不焊），公頭膠殼 14 mm 站在母座上，所以後殼內深 27 mm。兩面外緣整圈 R2.5 倒圓、直角 R4.5，螢幕窗外有一層 0.8 mm 內縮的邊框。整組 65 × 90 × 40.1 mm，壁厚 2 mm，四支 M2×35 從背面鎖穿。STL、SLDPRT 與尺寸依據表在專案 <code>enclosure/</code>。點圖可放大。</p>
   </section>
   <div class="gallery">
     <figure class="tall">
       <button class="shot" type="button" data-full="enclosure/enclosure-exploded.png" aria-label="放大外殼爆炸圖"><img src="enclosure/enclosure-exploded.png" alt="外殼爆炸圖：前殼、板子、後殼分開排列" loading="lazy"></button>
-      <figcaption><b>爆炸圖</b><span>左：前殼（鏡頭孔、兩個針孔、上牆快門窗）；中：板子；右：後殼（螢幕窗、四角四支板子立柱、螢幕窗旁四支較矮的螢幕定位柱）。板子四角落在立柱上，前殼四支 Ø4.6 柱壓住板面，螺絲從後殼底面沉孔鎖穿到前殼</span></figcaption>
+      <figcaption><b>爆炸圖</b><span>左：前殼（鏡頭孔、兩個針孔、上牆快門窗）；中：板子；右：後殼（螢幕窗、四角四支板子立柱、螢幕窗旁四支矮的螢幕螺絲柱）。板子四角落在立柱上，前殼四支 Ø4.6 柱壓住板面，螺絲從後殼底面沉孔鎖穿到前殼</span></figcaption>
     </figure>
     <figure>
       <button class="shot" type="button" data-full="enclosure/enclosure-iso.png" aria-label="放大外殼立體圖"><img src="enclosure/enclosure-iso.png" alt="外殼合起來的立體圖：鏡頭面朝前，頂邊有快門帽，右側有 USB-C 窗與開關槽" loading="lazy"></button>
@@ -383,6 +384,30 @@
     <figure>
       <button class="shot" type="button" data-full="enclosure/enclosure-left-sd.png" aria-label="放大左側牆"><img src="enclosure/enclosure-left-sd.png" alt="左側牆：記憶卡插槽在分模線下方" loading="lazy"></button>
       <figcaption><b>左側牆</b><span>記憶卡槽在分模線下方的後殼上，卡插到底仍露出殼外 2 mm 好拔</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/fit-ribbon-iso.png" aria-label="放大排線特寫"><img src="enclosure/fit-ribbon-iso.png" alt="前殼拿掉的特寫：橘色排線從 J2 出來反折貼回板面接到黑色相機模組，旁邊是快門開關與電源開關" loading="lazy"></button>
+      <figcaption><b>裝配檢查：排線反折</b><span>橘色 24P 排線從 J2 出來、往板邊 2.5 mm 就以 0.7 mm 半徑反折，貼回板面接到黑色相機模組；反折最外緣離上牆內面 3.8 mm，鏡座頂離天花板 1.1 mm</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/fit-ribbon-iso-ghost.png" aria-label="放大前殼半透明的排線特寫"><img src="enclosure/fit-ribbon-iso-ghost.png" alt="前殼半透明：排線、相機模組、快門帽與上牆窗、鏡頭穿出鏡座環" loading="lazy"></button>
+      <figcaption><b>裝配檢查：前殼半透明</b><span>同一角看穿前殼：鏡頭穿出鏡座環、快門帽坐在上牆的窗裡對著開關觸桿、四支柱子壓在板子四角</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/fit-back-open.png" aria-label="放大後殼拿掉的裝配檢查圖"><img src="enclosure/fit-back-open.png" alt="後殼拿掉：螢幕模組吊在紅色杜邦線之下、蓋著電池，電池線繞到 J4，記憶卡露出板邊" loading="lazy"></button>
+      <figcaption><b>裝配檢查：後殼拿掉</b><span>螢幕模組（藍）鎖在後殼矮柱的高度、蓋在銀色電池上方，紅色是七條杜邦線的膠殼與線束；電池線從尾端繞到 J4 插頭，記憶卡從左板邊露出</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/fit-cable-back.png" aria-label="放大杜邦線走線圖"><img src="enclosure/fit-cable-back.png" alt="後殼與螢幕模組都拿掉：紅色杜邦線從左邊的母頭膠殼 S 彎後走電池底下，到右邊往下繞進 J5 上的公頭膠殼" loading="lazy"></button>
+      <figcaption><b>裝配檢查：杜邦線走線</b><span>螢幕也拿掉只看線：左邊 7 個母頭膠殼套在模組排針上（朝板子伸 16.5 mm），線先 S 彎再走電池底下 0.7 mm 的空隙到模組右邊，沿模組邊往下、從下面繞進站在 J5 母座上的 7 個公頭膠殼。多出來的線長盤在模組右邊</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/fit-cable-right.png" aria-label="放大杜邦線側視圖"><img src="enclosure/fit-cable-right.png" alt="右側視：公頭膠殼站在 J5 母座上到板底下 22.5 mm，螢幕模組吊在更深處" loading="lazy"></button>
+      <figcaption><b>裝配檢查：右側視，看深度</b><span>J5 母座 8.5 mm 加公頭膠殼 14 mm 到板底下 22.5，線再彎出來 3.5，後殼內深因此定 27 mm；螢幕模組背面在 23.6、亮面 26.4，離底板內面 0.6 給窗框泡棉</span></figcaption>
+    </figure>
+    <figure>
+      <button class="shot" type="button" data-full="enclosure/fit-ghost-back.png" aria-label="放大半透明外殼的裝配檢查圖"><img src="enclosure/fit-ghost-back.png" alt="兩片殼半透明：四支矮柱頂住螢幕模組四角，立柱撐住板子四角" loading="lazy"></button>
+      <figcaption><b>裝配檢查：兩片殼半透明</b><span>後殼的四支矮柱頂住螢幕四角（M2×4 鎖住），四支立柱頂住板子四角；相機模組、排線、電池、電池線、記憶卡、螢幕、杜邦線的簡化模型一起做過干涉檢查，0 件</span></figcaption>
     </figure>
   </div>
 
@@ -427,7 +452,7 @@
 
   <section class="section-head" id="shopping">
     <h2>採購清單與購買網址</h2>
-    <p>2026-09-22 整理，與專案 <code>fab/採購清單.md</code> 同步。連結與價格為查詢當日所見，下單前再確認庫存與規格。</p>
+    <p>2026-09-23 整理，與專案 <code>fab/採購清單.md</code> 同步。連結與價格為查詢當日所見，下單前再確認庫存與規格。</p>
   </section>
 
   <div class="buy-block">
@@ -446,7 +471,7 @@
       <table class="buy">
         <tr><th>零件</th><th>連結</th><th>備註</th></tr>
         <tr><td>J4 JST PH 2.0 mm 2P 立式座</td><td><a href="https://www.lcsc.com/product-detail/Wire-To-Board-Connector_JST-B2B-PH-K-S-LF-SN_C131337.html" target="_blank" rel="noopener">LCSC C131337</a></td><td>電池座</td></tr>
-        <tr><td>J5 2.54 mm 1×7 立式母座（8.5 mm 高）</td><td><a href="https://www.lcsc.com/product-detail/C225482.html" target="_blank" rel="noopener">LCSC C225482 CJT A2541WV-7P</a>，或 ICShop／蝦皮任何「單排母座 2.54 1×7」（買 1×40 剪也行）</td><td>螢幕直插用；不要買 90° 或矮款，高度會變</td></tr>
+        <tr><td>J5 2.54 mm 1×7 立式母座（8.5 mm 高）</td><td><a href="https://www.lcsc.com/product-detail/C225482.html" target="_blank" rel="noopener">LCSC C225482 CJT A2541WV-7P</a>，或 ICShop／蝦皮任何「單排母座 2.54 1×7」（買 1×40 剪也行）</td><td>接螢幕的杜邦公頭插這裡；不要買 90° 或矮款，高度會變</td></tr>
       </table>
     </div>
   </div>
@@ -458,12 +483,13 @@
         <tr><th>品項</th><th>規格</th><th>連結</th><th>備註</th></tr>
         <tr><td>OV2640 相機模組</td><td>24 pin 0.5 mm 排線，ESP32-CAM 相容，排線約 21 mm</td><td><a href="https://www.icshop.com.tw/products/368030501479" target="_blank" rel="noopener">ICShop OV2640 攝影鏡頭 75°</a>（NT$110）、<a href="https://www.aliexpress.us/item/3256802773370193.html" target="_blank" rel="noopener">AliExpress 多焦距／夜視版</a></td><td>排線易折，多買一條。確認是 24P 0.5 mm、ESP32-CAM 用</td></tr>
         <tr><td>鋰電池</td><td>3.7V 單芯，603040 或 503040 約 600 mAh，帶保護板，JST PH 2.0 插頭</td><td><a href="https://www.100y.com.tw/product/158757" target="_blank" rel="noopener">勝特力 503040 600mAh</a>、<a href="https://www.yfe2019.com.tw/products/3.7V600mA%E8%81%9A%E5%90%88%E7%89%A9%E9%8B%B0%E9%9B%BB%E6%B1%A0503040-5e8561f5986e57d2.html" target="_blank" rel="noopener">詠豐電子 503040</a>、<a href="https://www.icshop.com.tw/products/368090500104" target="_blank" rel="noopener">ICShop 150mAh</a></td><td>收到先量極性，J4 pin 1 = 正極。換小電池要改 R3</td></tr>
-        <tr><td>預覽螢幕</td><td>通用型 1.3 吋 IPS 240×240 ST7789，7 pin 2.54 mm 直排針已焊，27.78 × 39.22 mm，直插 J5</td><td><a href="https://www.aliexpress.us/item/2255800033232649.html" target="_blank" rel="noopener">AliExpress 1.3" IPS ST7789</a>、<a href="https://www.aliexpress.us/item/2251832694355820.html" target="_blank" rel="noopener">AliExpress 另一賣家</a>；蝦皮搜「1.3吋 IPS 240x240 ST7789 7pin」約 NT$150–220</td><td>替代：<a href="https://www.icshop.com.tw/products/368031700013" target="_blank" rel="noopener">ICShop Waveshare 1.3inch LCD Module</a>（NT$225），板子較大、腳序不同，不能直插，要用它附的線接</td></tr>
+        <tr><td>預覽螢幕</td><td>通用型 1.3 吋 IPS 240×240 ST7789，7 pin 2.54 mm 直排針已焊，27.78 × 39.22 mm，七條公–母杜邦線接 J5</td><td><a href="https://www.aliexpress.us/item/2255800033232649.html" target="_blank" rel="noopener">AliExpress 1.3" IPS ST7789</a>、<a href="https://www.aliexpress.us/item/2251832694355820.html" target="_blank" rel="noopener">AliExpress 另一賣家</a>；蝦皮搜「1.3吋 IPS 240x240 ST7789 7pin」約 NT$150–220</td><td>替代：<a href="https://www.icshop.com.tw/products/368031700013" target="_blank" rel="noopener">ICShop Waveshare 1.3inch LCD Module</a>（NT$225），板子較大、腳序不同，要用它附的線接，外殼孔位也要改</td></tr>
+        <tr><td>杜邦線</td><td>公–母、10 cm、7 條（一排 40P 撕 7 條）</td><td>電子材料行／蝦皮</td><td>公頭插 J5、母頭套螢幕排針，腳序一對一；外殼已照 14 mm 膠殼留深度</td></tr>
         <tr><td>microSD 卡</td><td>8–32 GB，Class 10</td><td>任何通路</td><td>金手指朝板子插入 J3</td></tr>
         <tr><td>USB-C 線</td><td>要能傳資料</td><td>任何通路</td><td>燒錄與充電</td></tr>
-        <tr><td>M2 螺絲</td><td>M2 × 25 mm 盤頭 4 支</td><td>ICShop／蝦皮</td><td>從後殼底部沉孔穿過立柱與板子，自攻進前殼的導孔；螢幕靠後殼四支定位柱插進四角孔加窗框泡棉夾住，不用鎖</td></tr>
+        <tr><td>M2 螺絲</td><td>M2 × 35 mm 盤頭 4 支＋ M2 × 4 mm 盤頭 4 支</td><td>ICShop／蝦皮</td><td>M2×35 從後殼底部沉孔穿過立柱與板子，自攻進前殼的導孔；M2×4 把螢幕模組鎖在後殼四支矮柱上</td></tr>
         <tr><td>雙面泡棉膠</td><td>約 2 mm 厚</td><td>五金行</td><td>相機模組底下 8 × 8 mm，電池底下 26 × 36 mm</td></tr>
-        <tr><td>外殼</td><td>3D 列印三件：前殼約 20 g、後殼約 29 g、快門帽；PLA/PETG，0.2 mm 層高，不需支撐</td><td>STL 在專案 <code>enclosure/</code></td><td>開孔：鏡頭 (30, 25)、快門上板邊 x 47.6–53.6、BOOT/RESET 針孔 (9, 24) (9, 32)、開關右板邊 y 8–14、USB-C 右板邊 y 19.5–28.5、記憶卡左板邊 y 36–52、螢幕窗 23.4 × 23.4 中心 (40.5, 45)</td></tr>
+        <tr><td>外殼</td><td>3D 列印三件：前殼約 20 g、後殼約 40 g、快門帽；PLA/PETG，0.2 mm 層高，開口朝下印、柱子下加樹狀支撐</td><td>STL 在專案 <code>enclosure/</code></td><td>開孔：鏡頭 (30, 25)、快門上板邊 x 47.6–53.6、BOOT/RESET 針孔 (9, 24) (9, 32)、開關右板邊 y 8–14、USB-C 右板邊 y 19.5–28.5、記憶卡左板邊 y 36–52、螢幕窗 23.4 × 23.4 中心 (28.4, 45)；後殼內深 27 mm 給杜邦膠殼</td></tr>
       </table>
     </div>
     <p class="minimal"><b>只想先點亮板子的最小採購：</b>相機模組、電池、microSD 卡、USB-C 線，Economic 方案再加 J4 電池座。</p>
@@ -497,7 +523,7 @@
     </div>
     <div class="photo-card">
       <h3><i class="sw buy"></i>1.3 吋 ST7789 螢幕 <span class="tag">→ J5</span></h3>
-      <p>藍色小板、黑框正方形玻璃，一邊焊好 7 支直排針，印著 GND VCC SCL SDA RES DC BLK。插上去前對一次板上絲印。</p>
+      <p>藍色小板、黑框正方形玻璃，一邊焊好 7 支直排針，印著 GND VCC SCL SDA RES DC BLK。用七條公–母杜邦線接到 J5，接線前對一次板上絲印，GND 對 GND。</p>
       <ul>
         <li><a href="https://www.aliexpress.us/item/2255800033232649.html" target="_blank" rel="noopener">AliExpress 1.3" IPS 240×240 ST7789 7pin</a></li>
         <li><a href="https://www.icshop.com.tw/products/368031700013" target="_blank" rel="noopener">ICShop Waveshare 1.3inch LCD Module（替代，要用線接）</a></li>
@@ -514,7 +540,7 @@
     </div>
     <div class="photo-card">
       <h3><i class="sw buy"></i>microSD 卡、USB-C 線、M2 螺絲 <span class="tag">→ J3 / J1 / H1–H4</span></h3>
-      <p>通用品，任何通路皆可。USB-C 線要能傳資料，不要只能充電的線。螺絲是 M2 × 25 盤頭，配合外殼的沉孔與導孔。</p>
+      <p>通用品，任何通路皆可。USB-C 線要能傳資料，不要只能充電的線。螺絲是 M2 × 35 盤頭（外殼）與 M2 × 4 盤頭（螢幕），配合外殼的沉孔與導孔。杜邦線買公–母 10 cm 的。</p>
     </div>
     <div class="photo-card">
       <h3><i class="sw smt"></i>板上連接器與開關的長相 <span class="tag">JLCPCB 貼好</span></h3>
@@ -621,7 +647,7 @@
     kl.textContent = "ANTENNA KEEPOUT";
     HOLES.forEach(([x, y]) => {
       const h = el("circle", { class: "hole", cx: mx(x), cy: y, r: 1.1 }, g);
-      tip(h, "M2 定位孔：外殼的 M2×25 螺絲從這裡鎖穿");
+      tip(h, "M2 定位孔：外殼的 M2×35 螺絲從這裡鎖穿");
     });
     return g;
   }
@@ -704,13 +730,13 @@
     el("circle", { class: "buy-item", cx: 70, cy: 4, r: 2 }, g);
     el("line", { x1: 68.6, y1: 4, x2: 71.4, y2: 4, stroke: "var(--panel)", "stroke-width": 0.5 }, g);
     el("line", { x1: 70, y1: 2.6, x2: 70, y2: 5.4, stroke: "var(--panel)", "stroke-width": 0.5 }, g);
-    label(g, 74, 4.2, "M2 × 25 螺絲 × 4", "從外殼背面鎖穿 H1–H4");
+    label(g, 74, 4.2, "M2 × 35 螺絲 × 4", "從外殼背面鎖穿 H1–H4");
     leader(g, [[68, 4], [57.2, 4]]);
 
     // enclosure hint
     el("rect", { class: "shell-line", x: 64, y: 44, width: 30, height: 20, rx: 2 }, g);
     shellLabel(g, 66, 52, "3D 列印外殼");
-    const eh = el("text", { class: "buy-sub", x: 66, y: 56 }, g); eh.textContent = "65 × 90 × 27.6 mm，兩片殼 + 快門帽";
+    const eh = el("text", { class: "buy-sub", x: 66, y: 56 }, g); eh.textContent = "65 × 90 × 40.1 mm，兩片殼 + 快門帽";
   })();
 
   // ---------- BOTTOM (mirrored) ----------
@@ -726,12 +752,13 @@
     label(g, 66, 35, "microSD 卡", "8–32GB → J3");
     leader(g, [[66, 46], [61, 46]]);
 
-    // display module plugged into J5: KiCad x 19.3–58.5 → mirrored 1.5–40.7, y 31.1–58.9
-    el("rect", { class: "buy-item-ghost", x: 1.5, y: 31.1, width: 39.2, height: 27.8, rx: 0.6 }, g);
-    // active area 23.4 sq centred at KiCad (40.5, 45) → mirrored x 19.5
-    el("rect", { class: "shell-line", x: 19.5 - 12.25, y: 45 - 12.25, width: 24.5, height: 24.5, rx: 0.4 }, g);
-    el("rect", { fill: "var(--buy)", opacity: 0.18, x: 19.5 - 11.7, y: 45 - 11.7, width: 23.4, height: 23.4 }, g);
-    label(g, -5, 27.5, "1.3 吋 ST7789 螢幕", "直插 J5，亮面朝外");
+    // display module on Dupont jumpers (2026-09-23): KiCad x 10.4–49.6 → mirrored 10.4–49.6, y 31.1–58.9; header row at KiCad x 12.9 → mirrored 47.1
+    el("rect", { class: "buy-item-ghost", x: 10.4, y: 31.1, width: 39.2, height: 27.8, rx: 0.6 }, g);
+    for (let i = 0; i < 7; i++) el("rect", { x: 47.1 - 0.5, y: 37.38 + i * 2.54 - 0.5, width: 1, height: 1, fill: "var(--buy-ink)" }, g);
+    // active area 23.4 sq centred at KiCad (28.4, 45) → mirrored x 31.6
+    el("rect", { class: "shell-line", x: 31.6 - 12.25, y: 45 - 12.25, width: 24.5, height: 24.5, rx: 0.4 }, g);
+    el("rect", { fill: "var(--buy)", opacity: 0.18, x: 31.6 - 11.7, y: 45 - 11.7, width: 23.4, height: 23.4 }, g);
+    label(g, -5, 27.5, "1.3 吋 ST7789 螢幕", "七條杜邦線接 J5，亮面朝外");
     shellLabel(g, -5, 63.5, "外殼螢幕窗 24.5 × 24.5");
 
     // LiPo battery below the board
