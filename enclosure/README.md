@@ -17,6 +17,7 @@
 | `esp32s3-camera-board.SLDPRT` | 由 `../esp32s3-camera.step` 匯入的板子（148 個實體合成一個多實體零件），只給組合件用 |
 | `enclosure-*.png` | 各方向渲染與爆炸圖 |
 | `build_enclosure_sw.py` | 產生器。SolidWorks 開著時執行 `python enclosure/build_enclosure_sw.py`；只重建組合件加 `--asm-only` |
+| `export_stl.py` | 從三個 SLDPRT 重新匯出送印用的 binary STL，並檢查三角面數與外框尺寸（mm）。SolidWorks 的 STL 只匯出「目前啟用」的文件，2026-10-10 前的 STL 因此只有 32 個三角面的空盒，已重匯：前殼 13,580 面 65 × 90 × 11.5、後殼 17,180 面 65 × 90 × 32.1、快門帽 28 面 7.6 × 4.0 × 4.06 |
 
 ## 座標系
 

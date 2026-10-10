@@ -181,8 +181,11 @@ class Part:
         assert r[0], f"save failed {path} {r}"
         self.m.ViewZoomtofit2(); self.m.ShowNamedView2(png_view, 7); self.m.ViewZoomtofit2()
         self.ext.SaveAs3(os.path.join(OUT, self.name + ".png"), 0, 1, None, None, 0, 0)
-        if stl:
-            self.ext.SaveAs3(os.path.join(OUT, self.name + ".STL"), 0, 1, None, None, 0, 0)
+        if stl:   # STL goes out for the ACTIVE document with its current selection: activate + clear first,
+                  # otherwise SolidWorks writes a near-empty file (32 triangles, found 2026-10-10)
+            sw.ActivateDoc3(self.title, False, 0, 0); self.m.ClearSelection2(True)
+            r = self.ext.SaveAs3(os.path.join(OUT, self.name + ".STL"), 0, 1, None, None, 0, 0)
+            assert r[0], f"STL export failed {self.name} {r}"
         self.path = path
         return path
 
