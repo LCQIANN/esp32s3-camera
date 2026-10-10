@@ -68,6 +68,7 @@ esp32s3-camera/
 │   ├── v1.0/  v1.1/  v1.2/  v1.3/  v1.4/   每版有 README.txt 說明改了什麼
 │
 ├── enclosure/                    3D 列印外殼：SolidWorks 前殼、後殼、按鈕帽、組合件、STL、渲染圖與產生腳本（見 enclosure/README.md）
+├── firmware/                     Arduino 韌體：預覽、拍照存卡、閃光燈（見 firmware/README.md）
 ├── frames/                       2026-09-11 早期佈局的旋轉截圖，僅供回顧
 └── .history/                     KiCad 自動快照，由 KiCad 管理
 ```
@@ -122,7 +123,7 @@ esp32s3-camera/
 
 ## 韌體
 
-Arduino IDE `esp32` 套件的 CameraWebServer 範例，或 ESP-IDF 的 `esp32-camera` component。Board 選 **ESP32S3 Dev Module**，PSRAM 選 **OPI PSRAM**（R8 是 octal，選 QSPI 會抓不到）。相機 GPIO 對應表在 `DESIGN.md` 第 4 節，直接填進 `camera_config_t`。
+`firmware/esp32s3-camera/` 是 Arduino 專案（2026-10-10 起）：OV2640 即時預覽顯示在 ST7789 上，側邊快門拍 1600 × 1200 JPEG 存到 microSD `/DCIM/`，BOOT 鍵切換閃光燈。腳位全在 `firmware/esp32s3-camera/board_pins.h`，與 `DESIGN.md` 第 4 節一致。Board 選 **ESP32S3 Dev Module**，PSRAM 選 **OPI PSRAM**（R8 是 octal，選 QSPI 會抓不到），Flash 16MB，USB CDC On Boot 開。編譯設定、arduino-cli 指令、尚未在硬體驗證的項目見 `firmware/README.md`。板子還沒下單，韌體目前只確認能編譯（核心 3.3.10）。
 
 ## 版本規則
 
